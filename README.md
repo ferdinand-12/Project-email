@@ -23,3 +23,11 @@ Website email ini terdiri dari beberapa halaman utama:
 - **HTML** → Struktur halaman  
 - **CSS** → Desain & tampilan  
 - **JavaScript** → Interaksi & logika dasar  
+
+## 👥👥 Anggota Kelompok
+- **Ferdinand Gouwadi** → 535240087
+- **Priscilla Rebekah Tedja** → 535240086
+- **Kyeth Fernando** → 535240084
+- **Nicholas Isaiah** → 535240144
+- **James William Wijaya** → 535240082
+- **Juan Christian Handoko** → 535240179
