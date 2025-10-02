@@ -1,0 +1,97 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>PingMe - Inbox</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="layout">
+    <!-- Sidebar Kiri -->
+    <div class="sidebar">
+      <button class="new-mail-btn" onclick="location.href='compose.html'">+ New Mail</button>
+      
+      <div class="menu">
+        <a href="inbox.html" class="menu-item active">
+          <span>Inbox</span>
+          <span class="badge" id="inboxCount">0</span>
+        </a>
+        <a href="trash.html" class="menu-item">
+          <span>Trash</span>
+          <span class="badge" id="trashCount">0</span>
+        </a>
+        <a href="drafts.html" class="menu-item">
+          <span>Draft</span>
+          <span class="badge" id="draftCount">0</span>
+        </a>
+        <a href="sent.html" class="menu-item">
+          <span>Sent Items</span>
+        </a>
+        <a href="contacts.html" class="menu-item">
+          <span>Contacts</span>
+        </a>
+        <a href="starred.html" class="menu-item">
+          <span>Starred</span>
+        </a>
+        <a href="profile.html" class="menu-item">
+          <span>Profiles</span>
+        </a>
+      </div>
+
+      <div class="user-info">
+        <div style="color: #d4d4d4; font-weight: 600;">Sign / Log</div>
+        <a class="logout-link" id="logoutBtn">+ Add account</a>
+      </div>
+    </div>
+
+    <!-- Email List Panel (Tengah) -->
+    <div class="email-list-panel">
+      <div class="email-list-header">
+        <h2>Focused</h2>
+        <input type="text" class="search-box" id="searchBox" placeholder="Search">
+      </div>
+
+      <ul class="email-list" id="emailList"></ul>
+    </div>
+
+    <!-- Detail Panel (Kanan) -->
+    <div class="detail-panel">
+      <div class="detail-empty" id="detailEmpty">
+        Select an email to read
+      </div>
+
+      <div class="detail-content" id="detailContent">
+        <div class="detail-header">
+          <div class="detail-actions">
+            <button class="action-btn" id="replyBtn">↩ Reply</button>
+            <button class="action-btn" id="forwardBtn">➤ Forward</button>
+            <button class="action-btn" id="deleteBtn">🗑 Delete</button>
+            <button class="action-btn" id="starBtn">☆ Star</button>
+          </div>
+
+          <h1 class="detail-subject" id="detailSubject"></h1>
+
+          <div class="detail-info">
+            <div class="detail-info-row">
+              <span class="detail-info-label">From:</span>
+              <span id="detailFrom"></span>
+            </div>
+            <div class="detail-info-row">
+              <span class="detail-info-label">To:</span>
+              <span id="detailTo"></span>
+            </div>
+            <div class="detail-info-row">
+              <span class="detail-info-label">Date:</span>
+              <span id="detailDate"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-body" id="detailBody"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>

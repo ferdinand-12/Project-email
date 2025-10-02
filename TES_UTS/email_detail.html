@@ -1,0 +1,566 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>PingMe - Email Detail</title>
+  <style>
+    /* Reset & Base */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background: #0a0e1a;
+      color: #e6eef6;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* Layout */
+    .layout {
+      display: flex;
+      height: 100vh;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 280px;
+      background: #141821;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid rgba(255, 255, 255, 0.05);
+      overflow-y: auto;
+    }
+
+    .compose-btn {
+      background: #0078d4;
+      color: white;
+      border: none;
+      padding: 14px 20px;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 30px;
+      transition: background 0.2s;
+    }
+
+    .compose-btn:hover {
+      background: #0063ad;
+    }
+
+    /* Menu */
+    .menu {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .menu a {
+      padding: 12px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+      color: #a8b5c7;
+      font-size: 14px;
+      text-decoration: none;
+      display: block;
+    }
+
+    .menu a:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: #e6eef6;
+    }
+
+    .menu a.active {
+      background: rgba(0, 120, 212, 0.15);
+      color: #0078d4;
+      font-weight: 600;
+    }
+
+    /* Main Content */
+    .main-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .topbar {
+      background: #141821;
+      padding: 20px 32px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .back-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #e6eef6;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+
+    .back-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    /* Content Area */
+    .content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0;
+    }
+
+    /* Email Detail */
+    .email-detail {
+      background: #141821;
+      margin: 24px 32px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .email-header {
+      padding: 24px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .email-subject {
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      color: #e6eef6;
+    }
+
+    .email-info {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .email-info-row {
+      display: flex;
+      gap: 8px;
+      font-size: 14px;
+    }
+
+    .email-info-label {
+      color: #7a8a9e;
+      min-width: 60px;
+    }
+
+    .email-info-value {
+      color: #a8b5c7;
+    }
+
+    .email-body {
+      padding: 24px;
+      line-height: 1.6;
+      color: #e6eef6;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+
+    .email-actions {
+      padding: 20px 24px;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    /* Buttons */
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-primary {
+      background: #0078d4;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #0063ad;
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      color: #e6eef6;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .btn-danger {
+      background: rgba(255, 68, 68, 0.1);
+      color: #ff4444;
+      border: 1px solid rgba(255, 68, 68, 0.3);
+    }
+
+    .btn-danger:hover {
+      background: rgba(255, 68, 68, 0.2);
+    }
+
+    .star-btn {
+      background: rgba(255, 215, 0, 0.1);
+      color: #ffd700;
+      border: 1px solid rgba(255, 215, 0, 0.3);
+    }
+
+    .star-btn:hover {
+      background: rgba(255, 215, 0, 0.2);
+    }
+
+    .star-btn.starred {
+      background: rgba(255, 215, 0, 0.2);
+    }
+
+    .user-info {
+      margin-top: auto;
+      padding-top: 20px;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .user-name {
+      font-weight: 700;
+      color: #bfe9ff;
+      font-size: 15px;
+    }
+
+    .user-email {
+      font-size: 12px;
+      color: #7a8a9e;
+      margin-top: 4px;
+    }
+
+    .logout-link {
+      color: #0078d4;
+      font-size: 12px;
+      cursor: pointer;
+      margin-top: 8px;
+      display: inline-block;
+    }
+
+    .logout-link:hover {
+      text-decoration: underline;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .error-message {
+      padding: 60px 20px;
+      text-align: center;
+      color: #ff4444;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <button class="compose-btn" onclick="location.href='compose.html'">✉ Compose</button>
+      
+      <div class="menu">
+        <a href="inbox.html">📥 Inbox</a>
+        <a href="sent.html">📤 Sent Mail</a>
+        <a href="drafts.html">📝 Drafts</a>
+        <a href="trash.html">🗑️ Trash</a>
+        <a href="starred.html">⭐ Starred</a>
+        <a href="contacts.html">📇 Contacts</a>
+        <a href="profile.html">👤 Profile</a>
+      </div>
+
+      <div class="user-info">
+        <div class="user-name" id="userName">Loading...</div>
+        <div class="user-email" id="userEmail"></div>
+        <a class="logout-link" id="logoutBtn">Logout</a>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <div class="topbar">
+        <button class="back-btn" id="backBtn">← Back</button>
+        <h2 id="pageTitle">Email Detail</h2>
+      </div>
+
+      <div class="content">
+        <div id="emailDetailContainer"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // PingMe Application - Inline
+    const PingMe = {
+      currentUser: function() {
+        const userStr = localStorage.getItem('currentUser');
+        return userStr ? JSON.parse(userStr) : null;
+      },
+
+      setCurrentUser: function(user) {
+        localStorage.setItem('currentUser', JSON.stringify(user));
+      },
+
+      getAllUsers: function() {
+        const usersStr = localStorage.getItem('users');
+        return usersStr ? JSON.parse(usersStr) : [];
+      },
+
+      saveAllUsers: function(users) {
+        localStorage.setItem('users', JSON.stringify(users));
+      },
+
+      logoutUser: function() {
+        localStorage.removeItem('currentUser');
+      },
+
+      getEmailById: function(emailId, folder) {
+        const currentUser = this.currentUser();
+        if (!currentUser) return null;
+        
+        return currentUser.emails[folder].find(e => e.id === emailId);
+      },
+
+      moveToTrash: function(emailId, fromFolder) {
+        const users = this.getAllUsers();
+        const currentUser = this.currentUser();
+        
+        if (!currentUser) return { success: false };
+
+        const userIndex = users.findIndex(u => u.id === currentUser.id);
+        const user = users[userIndex];
+
+        const folderIndex = user.emails[fromFolder].findIndex(e => e.id === emailId);
+        
+        if (folderIndex !== -1) {
+          const email = user.emails[fromFolder][folderIndex];
+          user.emails[fromFolder].splice(folderIndex, 1);
+          
+          email.deletedFrom = fromFolder;
+          email.deletedAt = new Date().toISOString();
+          user.emails.trash.push(email);
+
+          this.saveAllUsers(users);
+          this.setCurrentUser(user);
+          return { success: true };
+        }
+
+        return { success: false };
+      },
+
+      toggleStar: function(emailId, folder) {
+        const users = this.getAllUsers();
+        const currentUser = this.currentUser();
+        
+        if (!currentUser) return { success: false };
+
+        const userIndex = users.findIndex(u => u.id === currentUser.id);
+        const user = users[userIndex];
+
+        const emailIndex = user.emails[folder].findIndex(e => e.id === emailId);
+        
+        if (emailIndex !== -1) {
+          const email = user.emails[folder][emailIndex];
+          email.isStarred = !email.isStarred;
+
+          if (email.isStarred) {
+            const starredCopy = {...email, originalFolder: folder};
+            const existingIndex = user.emails.starred.findIndex(e => e.id === emailId);
+            if (existingIndex === -1) {
+              user.emails.starred.push(starredCopy);
+            }
+          } else {
+            const starredIndex = user.emails.starred.findIndex(e => e.id === emailId);
+            if (starredIndex !== -1) {
+              user.emails.starred.splice(starredIndex, 1);
+            }
+          }
+
+          this.saveAllUsers(users);
+          this.setCurrentUser(user);
+          return { success: true, isStarred: email.isStarred };
+        }
+
+        return { success: false };
+      }
+    };
+
+    // Get URL parameters
+    function getUrlParameter(name) {
+      name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+      const regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+      const results = regex.exec(location.search);
+      return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+    }
+
+    // Check if user is logged in
+    const currentUser = PingMe.currentUser();
+    if (!currentUser) {
+      window.location.href = 'index.html';
+    } else {
+      document.getElementById('userName').textContent = currentUser.name;
+      document.getElementById('userEmail').textContent = currentUser.email;
+    }
+
+    // Logout handler
+    document.getElementById('logoutBtn').addEventListener('click', function() {
+      if (confirm('Are you sure you want to logout?')) {
+        PingMe.logoutUser();
+        window.location.href = 'index.html';
+      }
+    });
+
+    // Get email ID and folder from URL
+    const emailId = getUrlParameter('id');
+    const folder = getUrlParameter('folder') || 'inbox';
+
+    // Back button
+    document.getElementById('backBtn').addEventListener('click', function() {
+      window.location.href = folder + '.html';
+    });
+
+    // Load and display email
+    function loadEmail() {
+      const container = document.getElementById('emailDetailContainer');
+      
+      if (!emailId) {
+        container.innerHTML = '<div class="error-message">Email not found</div>';
+        return;
+      }
+
+      const email = PingMe.getEmailById(emailId, folder);
+      
+      if (!email) {
+        container.innerHTML = '<div class="error-message">Email not found or has been deleted</div>';
+        return;
+      }
+
+      // Format date
+      const date = new Date(email.time);
+      const formattedDate = date.toLocaleDateString('en-US', { 
+        weekday: 'long',
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+
+      // Create email detail HTML
+      const starClass = email.isStarred ? 'starred' : '';
+      const starText = email.isStarred ? '★ Starred' : '☆ Star';
+
+      container.innerHTML = `
+        <div class="email-detail">
+          <div class="email-header">
+            <h1 class="email-subject">${email.subject || '(no subject)'}</h1>
+            <div class="email-info">
+              <div class="email-info-row">
+                <span class="email-info-label">From:</span>
+                <span class="email-info-value">${email.from || currentUser.email}</span>
+              </div>
+              <div class="email-info-row">
+                <span class="email-info-label">To:</span>
+                <span class="email-info-value">${email.to || currentUser.email}</span>
+              </div>
+              <div class="email-info-row">
+                <span class="email-info-label">Date:</span>
+                <span class="email-info-value">${formattedDate}</span>
+              </div>
+              ${email.attachment ? `
+              <div class="email-info-row">
+                <span class="email-info-label">Attachment:</span>
+                <span class="email-info-value">${email.attachment}</span>
+              </div>
+              ` : ''}
+            </div>
+          </div>
+
+          <div class="email-body">
+${email.body}
+          </div>
+
+          <div class="email-actions">
+            <button class="btn btn-primary" id="replyBtn">↩ Reply</button>
+            <button class="btn btn-secondary" id="forwardBtn">➤ Forward</button>
+            <button class="btn star-btn ${starClass}" id="starBtn">${starText}</button>
+            <button class="btn btn-danger" id="deleteBtn">🗑 Delete</button>
+          </div>
+        </div>
+      `;
+
+      // Add event listeners
+      document.getElementById('replyBtn').addEventListener('click', function() {
+        window.location.href = `reply.html?id=${emailId}&folder=${folder}`;
+      });
+
+      document.getElementById('forwardBtn').addEventListener('click', function() {
+        window.location.href = `compose.html?forward=${emailId}&folder=${folder}`;
+      });
+
+      document.getElementById('starBtn').addEventListener('click', function() {
+        const result = PingMe.toggleStar(emailId, folder);
+        if (result.success) {
+          loadEmail(); // Reload to update star button
+        }
+      });
+
+      document.getElementById('deleteBtn').addEventListener('click', function() {
+        if (confirm('Move this email to trash?')) {
+          const result = PingMe.moveToTrash(emailId, folder);
+          if (result.success) {
+            alert('Email moved to trash');
+            window.location.href = folder + '.html';
+          }
+        }
+      });
+    }
+
+    // Load email on page load
+    loadEmail();
+  </script>
+</body>
+</html>

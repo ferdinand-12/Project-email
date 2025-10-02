@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - PingMe</title>
+  <style>
+    /* Reset */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background: #141821;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    /* Container */
+    .login-container {
+      width: 100%;
+      max-width: 600px;
+      padding: 30px;
+    }
+
+    /* Box */
+    .login-box {
+      background: #1f2533;
+      border-radius: 12px;
+      padding: 60px 50px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      justify-content: left;
+      gap: 12px;
+      margin-bottom: 25px;
+      margin-top: -30px;
+    }
+
+    .brand img.logo {
+      width: 50px;
+      height: 50px;
+    }
+
+    .brand span {
+      color: #0078d4;
+      font-size: 36px;
+      font-weight: bold;
+    }
+
+    .title {
+      font-size: 40px;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    .subtitle {
+      font-size: 18px;
+      color: #bbb;
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    /* Input group */
+    .input-group {
+      position: relative;
+      margin-bottom: 32px;
+    }
+
+    .input-group input {
+      width: 100%;
+      padding: 18px 14px 14px;
+      border: none;
+      border-bottom: 2px solid #555;
+      background: transparent;
+      color: #fff;
+      font-size: 16px;
+    }
+
+    .input-group input:focus {
+      outline: none;
+      border-color: #0078d4;
+    }
+
+    .input-group input::placeholder {
+      color: transparent;
+    }
+
+    .input-group label {
+      position: absolute;
+      left: 14px;
+      top: 18px;
+      color: #aaa;
+      font-size: 15px;
+      pointer-events: none;
+      transition: all 0.2s ease;
+      background: #1f2533;
+      padding: 0 6px;
+      border-radius: 4px;
+    }
+
+    /* Label naik */
+    .input-group input:focus ~ label,
+    .input-group input:not(:placeholder-shown) ~ label,
+    .input-group.filled label {
+      top: -10px;
+      left: 10px;
+      font-size: 13px;
+      color: #0078d4;
+    }
+
+    /* Button */
+    .btn {
+      width: 100%;
+      padding: 16px;
+      background: #0078d4;
+      border: none;
+      border-radius: 8px;
+      color: #fff;
+      font-size: 17px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn:hover {
+      background: #0063ad;
+    }
+
+    /* Links */
+    .links {
+      margin-top: 28px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .links a {
+      color: #0078d4;
+      font-size: 14px;
+      text-decoration: none;
+    }
+
+    .links a:hover {
+      text-decoration: underline;
+    }
+
+    /* Alert */
+    .alert {
+      padding: 12px;
+      border-radius: 6px;
+      margin-bottom: 20px;
+      font-size: 14px;
+      display: none;
+    }
+
+    .alert.show {
+      display: block;
+    }
+
+    .alert-error {
+      background: rgba(255, 68, 68, 0.1);
+      border: 1px solid rgba(255, 68, 68, 0.3);
+      color: #ff4444;
+    }
+
+    .alert-success {
+      background: rgba(0, 200, 0, 0.1);
+      border: 1px solid rgba(0, 200, 0, 0.3);
+      color: #00ff00;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <div class="login-box">
+      <div class="brand">
+        <div style="width: 50px; height: 50px; background: #0078d4; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold;">P</div>
+        <span>PingMe</span>
+      </div>
+      
+      <h2 class="title">Sign in</h2>
+      <p class="subtitle">to continue to your account</p>
+
+      <div id="alertMessage" class="alert"></div>
+
+      <form id="loginForm">
+        <div class="input-group">
+          <input type="email" id="email" required placeholder=" " value="james.535240082@stu.untar.ac.id">
+          <label for="email">Email address</label>
+        </div>
+
+        <div class="input-group">
+          <input type="password" id="password" required placeholder=" " value="password123">
+          <label for="password">Password</label>
+        </div>
+
+        <button type="submit" class="btn">Sign in</button>
+
+        <div class="links">
+          <a href="#" onclick="alert('Feature coming soon!'); return false;">Forgot password?</a>
+          <a href="signup.html">Create account</a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // PingMe Application
+    const PingMe = {
+      currentUser: function() {
+        const userStr = localStorage.getItem('currentUser');
+        return userStr ? JSON.parse(userStr) : null;
+      },
+
+      setCurrentUser: function(user) {
+        localStorage.setItem('currentUser', JSON.stringify(user));
+      },
+
+      getAllUsers: function() {
+        const usersStr = localStorage.getItem('users');
+        return usersStr ? JSON.parse(usersStr) : [];
+      },
+
+      saveAllUsers: function(users) {
+        localStorage.setItem('users', JSON.stringify(users));
+      },
+
+      loginUser: function(email, password) {
+        const users = this.getAllUsers();
+        const user = users.find(u => u.email === email && u.password === password);
+        
+        if (user) {
+          this.setCurrentUser(user);
+          return { success: true, message: 'Login successful' };
+        }
+        return { success: false, message: 'Invalid email or password' };
+      }
+    };
+
+    // Initialize sample data if needed
+    if (!localStorage.getItem('users')) {
+      const sampleUser = {
+        id: '1',
+        name: 'james',
+        email: 'james.535240082@stu.untar.ac.id',
+        password: 'password123',
+        phone: '081234567890',
+        createdAt: new Date().toISOString(),
+        emails: {
+          inbox: [
+            {
+              id: '1',
+              from: 'john.doe@example.com',
+              to: 'james.535240082@stu.untar.ac.id',
+              subject: 'Welcome to PingMe',
+              body: 'Welcome to PingMe email service! We are excited to have you on board. This is a sample email to get you started with our platform.',
+              time: new Date(Date.now() - 86400000).toISOString(),
+              isStarred: false,
+              isRead: false
+            },
+            {
+              id: '2',
+              from: 'sarah.johnson@company.com',
+              to: 'james.535240082@stu.untar.ac.id',
+              subject: 'Project Update',
+              body: 'Hi, I wanted to give you a quick update on our project status. Everything is progressing well and we are on track to meet our deadline.',
+              time: new Date(Date.now() - 172800000).toISOString(),
+              isStarred: false,
+              isRead: false
+            },
+            {
+              id: '3',
+              from: 'notifications@pingme.com',
+              to: 'james.535240082@stu.untar.ac.id',
+              subject: 'Your account is ready',
+              body: 'Your PingMe account has been successfully created. You can now start sending and receiving emails. Enjoy our service!',
+              time: new Date(Date.now() - 259200000).toISOString(),
+              isStarred: true,
+              isRead: true
+            }
+          ],
+          sent: [],
+          drafts: [],
+          trash: [],
+          starred: []
+        },
+        contacts: [
+          {
+            id: '1',
+            name: 'John Doe',
+            email: 'john.doe@example.com',
+            phone: '081234567891'
+          }
+        ]
+      };
+
+      localStorage.setItem('users', JSON.stringify([sampleUser]));
+    }
+
+    // Check if already logged in
+    if (PingMe.currentUser()) {
+      window.location.href = 'inbox.html';
+    }
+
+    // Handle input labels
+    document.addEventListener('DOMContentLoaded', () => {
+      const inputs = document.querySelectorAll('.input-group input');
+      
+      // Check for autofill
+      setTimeout(() => {
+        inputs.forEach(input => {
+          if (input.value.trim() !== '') {
+            input.parentElement.classList.add('filled');
+          }
+        });
+      }, 200);
+
+      // Input event listeners
+      inputs.forEach(input => {
+        input.addEventListener('input', () => {
+          if (input.value.trim() !== '') {
+            input.parentElement.classList.add('filled');
+          } else {
+            input.parentElement.classList.remove('filled');
+          }
+        });
+        
+        input.addEventListener('blur', () => {
+          if (input.value.trim() !== '') {
+            input.parentElement.classList.add('filled');
+          }
+        });
+      });
+
+      // Form submission
+      document.getElementById('loginForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value;
+        const alertDiv = document.getElementById('alertMessage');
+
+        // Validation
+        if (!email || !password) {
+          alertDiv.className = 'alert alert-error show';
+          alertDiv.textContent = 'All fields are required';
+          return;
+        }
+
+        // Email format validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+          alertDiv.className = 'alert alert-error show';
+          alertDiv.textContent = 'Please enter a valid email address';
+          return;
+        }
+
+        // Login attempt
+        const result = PingMe.loginUser(email, password);
+        
+        if (result.success) {
+          alertDiv.className = 'alert alert-success show';
+          alertDiv.textContent = 'Login successful! Redirecting...';
+          setTimeout(() => {
+            window.location.href = 'inbox.html';
+          }, 1000);
+        } else {
+          alertDiv.className = 'alert alert-error show';
+          alertDiv.textContent = result.message;
+        }
+      });
+    });
+  </script>
+</body>
+</html>
