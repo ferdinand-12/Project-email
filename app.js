@@ -89,7 +89,7 @@
     // Check if user is logged in
     const currentUser = PingMe.currentUser();
     if (!currentUser) {
-      window.location.href = 'index.html';
+      window.location.href = 'login.html';
     }
 
     // Update badge counts
