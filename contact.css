@@ -225,3 +225,133 @@ body {
   color: #999;
   margin: 0;
 }
+
+.btn {
+  box-shadow: 0 2px 5px rgba(0,0,0,0.25);
+}
+.btn:active {
+  transform: translateY(1px);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+/* --- Contact Page Button Styles --- */
+.btn {
+  font-family: inherit;
+  font-size: 14px;
+  padding: 8px 14px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.25s, transform 0.1s;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+}
+
+/* Warna spesifik */
+.btn-compose {
+  background-color: #0078d4;
+  color: white;
+}
+
+.btn-compose:hover {
+  background-color: #005fa3;
+}
+
+.btn-edit {
+  background-color: #28a745;
+  color: white;
+}
+
+.btn-edit:hover {
+  background-color: #1e7e34;
+}
+
+.btn-delete {
+  background-color: #dc3545;
+  color: white;
+}
+
+.btn-delete:hover {
+  background-color: #b52a37;
+}
+
+.btn-save {
+  width: 100%;
+  background-color: #0078d4;
+  color: white;
+  font-weight: bold;
+  padding: 10px;
+}
+
+.btn-save:hover {
+  background-color: #005fa3;
+}
+
+.btn-cancel {
+  background-color: #555;
+  color: white;
+  margin-left: 10px;
+}
+
+.btn-cancel:hover {
+  background-color: #444;
+}
+
+/* Penataan action tombol di daftar kontak */
+.contact-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.contact-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: nowrap;
+  background: #3a3a3a;
+  padding: 10px;
+  border-radius: 8px;
+  gap: 10px;
+}
+
+/* Avatar tetap ukuran tetap */
+.contact-avatar {
+  flex-shrink: 0;
+}
+
+/* Info kontak fleksibel dan teks bisa terpotong */
+.contact-info {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+/* Potong teks panjang dengan elipsis */
+.contact-name,
+.contact-email,
+.contact-phone {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: 0;
+}
+
+/* Area tombol ditata vertikal */
+.contact-actions {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  gap: 6px;
+  align-items: flex-end;
+}
+
+/* Batasi lebar tombol agar seragam */
+.contact-actions .btn {
+  width: 90px;
+  text-align: center;
+  padding: 6px 0;
+  font-size: 13px;
+}

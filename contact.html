@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Contacts</title>
-  <link rel="stylesheet" href="contact.css" />
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Contacts</title>
+<link rel="stylesheet" href="contact.css" />
 </head>
 <body>
-  <div class="app-container">
+<div class="app-container">
     <!-- Sidebar -->
     <aside class="sidebar">
-      <button class="new-mail" onclick="location.href='inbox.html'">+ New Mail</button>
-      <ul class="menu">
+    <button class="new-mail" onclick="location.href='inbox.html'">+ New Mail</button>
+    <ul class="menu">
         <li onclick="location.href='inbox.html'">Inbox <span class="badge" id="inboxCount">0</span></li>
         <li onclick="location.href='trash.html'">Trash <span class="badge">1</span></li>
         <li onclick="location.href='draft.html'">Draft</li>
@@ -19,47 +19,47 @@
         <li class="active" onclick="location.href='contact.html'">Contacts</li>
         <li onclick="location.href='starred.html'">Starred</li>
         <li onclick="location.href='profile.html'">Profiles</li>
-      </ul>
-      <div class="account">
+    </ul>
+    <div class="account">
         <p id="userEmail">Sign / Log</p>
         <button class="add-account">+ Add account</button>
-      </div>
+    </div>
     </aside>
 
     <!-- Contact List -->
     <main class="email-list">
-      <h3>Daftar Kontak</h3>
-      <div id="contactList" class="contact-items"></div>
+    <h3>Daftar Kontak</h3>
+    <div id="contactList" class="contact-items"></div>
     </main>
 
     <!-- Contact Form -->
     <section class="email-detail">
-      <div class="form-container">
+    <div class="form-container">
         <h2>Tambah / Edit Kontak</h2>
         <form id="contactForm">
-          <input type="hidden" id="contactId" />
-          <div>
+        <input type="hidden" id="contactId" />
+        <div>
             <label for="fullName">Nama Lengkap:</label><br>
             <input type="text" id="fullName" name="fullName" required />
-          </div>
-          <br>
-          <div>
+        </div>
+        <br>
+        <div>
             <label for="email">Email:</label><br>
             <input type="email" id="email" name="email" required />
-          </div>
-          <br>
-          <div>
+        </div>
+        <br>
+        <div>
             <label for="phoneNumber">Nomor Handphone:</label><br>
             <input type="tel" id="phoneNumber" name="phoneNumber" required />
-          </div>
-          <br>
-          <button type="submit" class="new-mail">Simpan Kontak</button>
-          <button type="button" id="cancelButton" class="add-account" style="display:none;">Batal</button>
+        </div>
+        <br>
+        <button type="submit" class="btn btn-save">Simpan Kontak</button>
+        <button type="button" id="cancelButton" class="btn btn-cancel" style="display:none;">Batal</button>
         </form>
-      </div>
+    </div>
     </section>
-  </div>
+</div>
 
-  <script src="script.js"></script>
+<script src="script.js"></script>
 </body>
 </html>

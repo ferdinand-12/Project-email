@@ -34,11 +34,13 @@ document.addEventListener('DOMContentLoaded', function() {
           <p class="contact-email">${contact.email}</p>
           <p class="contact-phone">${contact.phoneNumber}</p>
         </div>
-        <div>
-          <button class="edit-btn" data-id="${contact.id}">Edit</button>
-          <button class="delete-btn" data-id="${contact.id}">Hapus</button>
+        <div class="contact-actions">
+          <button class="btn btn-compose" data-email="${contact.email}">Compose</button>
+          <button class="btn btn-edit" data-id="${contact.id}">Edit</button>
+          <button class="btn btn-delete" data-id="${contact.id}">Hapus</button>
         </div>
       `;
+
       contactList.appendChild(item);
     });
   }
