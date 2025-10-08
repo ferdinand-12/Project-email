@@ -109,3 +109,105 @@ document.addEventListener('DOMContentLoaded', function() {
   // Tampilkan daftar kontak saat awal
   renderContacts();
 });
+
+function sendMail() {
+  const to = document.getElementById("to").value;
+  const subject = document.getElementById("subject").value;
+  const message = document.getElementById("message").value;
+
+  if (!to || !subject || !message) {
+    alert("Please fill all fields!");
+    return;
+  }
+
+  const mail = { to, subject, message, date: new Date().toLocaleString() };
+  let sent = JSON.parse(localStorage.getItem("sent")) || [];
+  sent.push(mail);
+  localStorage.setItem("sent", JSON.stringify(sent));
+
+  alert("Email sent!");
+  window.location.href = "sent.html"; 
+}
+
+function showSent() {
+  if (!document.getElementById("sentList")) return;
+
+  const sentList = document.getElementById("sentList");
+  const sent = JSON.parse(localStorage.getItem("sent")) || [];
+  sentList.innerHTML = "";
+
+  sent.forEach((mail, index) => {
+    const div = document.createElement("div");
+    div.innerHTML = `
+      <p><strong>To:</strong> ${mail.to}<br>
+      <strong>Subject:</strong> ${mail.subject}<br>
+      <strong>Message:</strong> ${mail.message}<br>
+      <small>${mail.date}</small></p>
+      <button onclick="deleteMail(${index})">Delete</button>
+      <hr>
+    `;
+    sentList.appendChild(div);
+  });
+}
+
+function deleteMail(index) {
+  let sent = JSON.parse(localStorage.getItem("sent")) || [];
+  let trash = JSON.parse(localStorage.getItem("trash")) || [];
+
+  const deletedMail = sent.splice(index, 1)[0];
+  trash.push(deletedMail);
+
+  localStorage.setItem("sent", JSON.stringify(sent));
+  localStorage.setItem("trash", JSON.stringify(trash));
+
+  showSent();
+  alert("Email moved to Trash!");
+}
+
+function showTrash() {
+  if (!document.getElementById("trashList")) return;
+
+  const trashList = document.getElementById("trashList");
+  const trash = JSON.parse(localStorage.getItem("trash")) || [];
+  trashList.innerHTML = "";
+
+  trash.forEach((mail, index) => {
+    const div = document.createElement("div");
+    div.innerHTML = `
+      <p><strong>To:</strong> ${mail.to}<br>
+      <strong>Subject:</strong> ${mail.subject}<br>
+      <strong>Message:</strong> ${mail.message}<br>
+      <small>${mail.date}</small></p>
+      <button onclick="restoreMail(${index})">Restore</button>
+      <button onclick="deleteForever(${index})">Delete Permanently</button>
+      <hr>
+    `;
+    trashList.appendChild(div);
+  });
+}
+
+function restoreMail(index) {
+  let trash = JSON.parse(localStorage.getItem("trash")) || [];
+  let sent = JSON.parse(localStorage.getItem("sent")) || [];
+
+  const restoredMail = trash.splice(index, 1)[0];
+  sent.push(restoredMail);
+
+  localStorage.setItem("trash", JSON.stringify(trash));
+  localStorage.setItem("sent", JSON.stringify(sent));
+
+  showTrash();
+  alert("Email restored to Sent!");
+}
+
+function deleteForever(index) {
+  let trash = JSON.parse(localStorage.getItem("trash")) || [];
+  trash.splice(index, 1);
+  localStorage.setItem("trash", JSON.stringify(trash));
+
+  showTrash();
+  alert("Email deleted permanently!");
+}
+
+showSent();
+showTrash();
