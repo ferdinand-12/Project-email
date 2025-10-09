@@ -211,3 +211,37 @@ function deleteForever(index) {
 
 showSent();
 showTrash();
+
+document.addEventListener("DOMContentLoaded", () => {
+  const form = document.querySelector("form");
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault(); 
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value.trim();
+    const confirmPassword = document.getElementById("confirm_password").value.trim();
+
+    // Validasi password cocok
+    if (password !== confirmPassword) {
+      alert("Password dan konfirmasi password tidak cocok!");
+      return;
+    }
+
+    // Ambil user lama dari localStorage
+    let users = JSON.parse(localStorage.getItem("users")) || [];
+
+    // Cek email sudah terdaftar
+    const exists = users.find((user) => user.email === email);
+    if (exists) {
+      alert("Email sudah terdaftar, silakan login.");
+      return;
+    }
+
+    // Tambahkan user baru
+    users.push({ email, password });
+    localStorage.setItem("users", JSON.stringify(users));
+
+    alert("Akun berhasil dibuat! Silakan login.");
+    window.location.href = "login.html"; // ✅ Redirect otomatis ke login
+  });
+});

@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="login-container"> <!-- bisa pakai class sama biar style konsisten -->
+  <div class="login-container">
     <div class="login-box">
       <div class="brand">
         <img src="logo.png" alt="Logo" class="logo">
@@ -16,7 +16,8 @@
       <h2 class="title">Sign Up</h2>
       <p class="subtitle">create your new account</p>
 
-      <form action="#signup" method="post">
+      <form id="signupForm">
+
         <div class="input-group">
           <input type="email" id="email" name="email" required placeholder=" ">
           <label for="email">Email address</label>
