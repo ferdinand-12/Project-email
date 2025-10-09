@@ -8,7 +8,7 @@
 
 **PingMe** adalah aplikasi email berbasis web yang dibangun menggunakan **HTML, CSS, dan JavaScript murni** tanpa framework eksternal. Aplikasi ini dirancang dengan antarmuka yang sederhana dan intuitif, menyediakan fitur-fitur email lengkap seperti inbox, sent mail, drafts, trash, compose, reply, dan manajemen kontak.
 
-Project ini dibuat sebagai bagian dari **Ujian Tengah Semester - Pemrograman Web**.
+Project ini dibuat sebagai bagian dari **Ujian Tengah Semester - Front-End Programming**.
 
 ---
 
