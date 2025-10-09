@@ -1,0 +1,173 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>PingMe - Contacts</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="layout">
+    
+    <div class="sidebar card">
+      <div class="sidebar-logo">
+        <img src="logo.png" alt="PingMe Logo">
+        <div class="logo-text">PingMe</div>
+      </div>
+      <button class="compose-btn" onclick="location.href='compose.html'">✉ Compose</button>
+      
+      <div class="menu">
+        <a href="inbox.html">Inbox</a>
+        <a href="sent.html">Sent Mail</a>
+        <a href="drafts.html">Drafts</a>
+        <a href="trash.html">Trash</a>
+        <a href="starred.html">Starred</a>
+        <a href="contacts.html" class="active">Contacts</a>
+        <a href="profile.html">Profile</a>
+      </div>
+
+      <div style="margin-top: auto; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.05)">
+        <div style="font-weight:700;color:#bfe9ff" id="userName"></div>
+        <div class="small" id="userEmail"></div>
+        <a class="link" id="logout" style="font-size: 12px; margin-top: 8px; display: block">Logout</a>
+      </div>
+    </div>
+
+    <div style="flex: 1">
+      <div class="topbar" style="justify-content:space-between">
+        <h2 style="margin:0">Contacts</h2>
+        <button class="button" id="addContact">Add Contact</button>
+      </div>
+      
+      <div class="card">
+        <div id="addContactForm" style="display:none; margin-bottom:16px;">
+          <div class="form-group">
+            <input type="text" id="newName" placeholder="Full Name">
+          </div>
+          <div class="form-group">
+            <input type="email" id="newEmail" placeholder="Email Address">
+          </div>
+          <div class="form-group">
+            <input type="text" id="newPhone" placeholder="Phone (format: 08xxxxxxxxxx)">
+          </div>
+          <div class="actions">
+            <button class="button" id="saveContact">Save</button>
+            <button class="btn-ghost" id="cancelAdd">Cancel</button>
+          </div>
+        </div>
+        <table class="table" id="contactsTable"></table>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/app.js"></script>
+  <script>
+    const u = PingMe.currentUser();
+    if(!u) location.href='index.html';
+    
+    document.getElementById('userName').textContent = u.name;
+    document.getElementById('userEmail').textContent = u.email;
+    
+    document.getElementById('logout').addEventListener('click', ()=>{
+      PingMe.logoutUser();
+      location.href='index.html';
+    });
+    
+    function render(){
+      const table = document.getElementById('contactsTable');
+      table.innerHTML='';
+      
+      if(!u.contacts.length) {
+        table.innerHTML='<tr><td class="small" style="padding: 20px; text-align: center; color: var(--muted)">No contacts yet. Add your first contact!</td></tr>';
+        return;
+      }
+      
+      u.contacts.forEach(c=>{
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td style="padding:14px">
+            <div style="font-weight:600">${c.name}</div>
+            <div class="small">${c.email} • ${c.phone}</div>
+          </td>
+          <td style="padding:14px;text-align:right">
+            <button class="btn-ghost compose" data-email="${c.email}" style="margin-right: 6px; color: var(--accent)">✉ Compose</button>
+            <button class="btn-ghost edit" data-id="${c.id}" style="margin-right: 6px">Edit</button>
+            <button class="btn-ghost del" data-id="${c.id}" style="color: var(--danger)">Delete</button>
+          </td>
+        `;
+        table.appendChild(tr);
+      });
+      
+      q('.del').forEach(el=>el.addEventListener('click', e=>{
+        if(confirm('Delete this contact?')){
+          PingMe.removeContact(e.target.dataset.id);
+          location.reload();
+        }
+      }));
+
+      q('.compose').forEach(el => el.addEventListener('click', e => {
+        const email = e.target.dataset.email;
+        location.href = `compose.html?to=${encodeURIComponent(email)}`;
+      }));
+
+      
+      q('.edit').forEach(el=>el.addEventListener('click', e=>{
+        const id = e.target.dataset.id;
+        const c = u.contacts.find(x=>x.id===id);
+        const name = prompt('Name', c.name);
+        const email = prompt('Email', c.email);
+        const phone = prompt('Phone', c.phone);
+        if(name && email && phone){
+          if(!PingMe.isValidEmail(email)){
+            alert('Invalid email format');
+            return;
+          }
+          if(!PingMe.isValidPhone(phone)){
+            alert('Invalid phone format');
+            return;
+          }
+          PingMe.editContact(id,{name,email,phone});
+          location.reload();
+        }
+      }));
+    }
+    
+    const addBtn = document.getElementById('addContact');
+    const form = document.getElementById('addContactForm');
+    const saveBtn = document.getElementById('saveContact');
+    const cancelBtn = document.getElementById('cancelAdd');
+
+    addBtn.addEventListener('click', ()=>{
+      form.style.display = form.style.display === 'none' ? 'block' : 'none';
+    });
+
+    cancelBtn.addEventListener('click', ()=>{
+      form.style.display = 'none';
+    });
+
+    saveBtn.addEventListener('click', ()=>{
+      const name = document.getElementById('newName').value.trim();
+      const email = document.getElementById('newEmail').value.trim();
+      const phone = document.getElementById('newPhone').value.trim();
+
+      if(!name || !email || !phone){
+        alert('All fields are required');
+        return;
+      }
+      if(!PingMe.isValidEmail(email)){
+        alert('Invalid email format');
+        return;
+      }
+      if(!PingMe.isValidPhone(phone)){
+        alert('Invalid phone format (must start with 08, 10–16 digits)');
+        return;
+      }
+
+      PingMe.addContact({name, email, phone});
+      location.reload();
+    });
+
+    
+    render();
+  </script>
+</body>
+</html>

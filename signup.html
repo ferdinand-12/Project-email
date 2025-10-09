@@ -1,0 +1,55 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"><title>PingMe - Sign up</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="center-card">
+    <div class="logo centered-logo">
+      <img src="logo.png" alt="PingMe Logo">
+      <div class="logo-text">PingMe</div>
+    </div>
+
+
+    <h1 class="title">Create account</h1>
+
+    <div class="form-group"><label class="small">Full name</label><input id="name" type="text"></div>
+    <div class="form-group"><label class="small">Email</label><input id="email" type="email"></div>
+    <div class="form-group"><label class="small">Phone (08xx)</label><input id="phone" type="text"></div>
+    <div class="form-group"><label class="small">Password</label><input id="password" type="password"></div>
+    <div class="form-group"><label class="small">Confirm password</label><input id="confirm" type="password"></div>
+
+    <div style="display:flex;justify-content:center;margin-top:10px">
+      <button class="button" id="signup">Sign up</button>
+    </div>
+    <p style="text-align:center;margin-top:12px;color:var(--muted)">Already have account? <a href="index.html" class="link">Sign in</a></p>
+    <p id="err" class="error" style="display:none"></p>
+  </div>
+
+  <script src="js/app.js"></script>
+  <script>
+    document.getElementById('signup').addEventListener('click', ()=>{
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      const pass = document.getElementById('password').value;
+      const conf = document.getElementById('confirm').value;
+      const err = document.getElementById('err');
+      err.style.display='none';
+
+      if(!name||!email||!phone||!pass||!conf){ err.textContent='Semua field wajib diisi.'; err.style.display='block'; return; }
+      if(!PingMe.isValidEmail(email)){ err.textContent='Email tidak valid.'; err.style.display='block'; return; }
+      if(pass.length < 8){ err.textContent='Kata sandi minimal 8 karakter.'; err.style.display='block'; return; }
+      if(pass !== conf){ err.textContent='Konfirmasi kata sandi tidak cocok.'; err.style.display='block'; return; }
+      if(!PingMe.isValidFullName(name)){ err.textContent='Nama lengkap 3–32 karakter, tanpa angka.'; err.style.display='block'; return; }
+      if(!PingMe.isValidPhone(phone)){ err.textContent='Nomor HP harus format 08xx, panjang 10–16 digit.'; err.style.display='block'; return; }
+      if(PingMe.findUserByEmail(email)){ err.textContent='Email sudah terdaftar.'; err.style.display='block'; return; }
+
+      PingMe.createUser({email,password:pass,name,phone});
+      alert('Registrasi berhasil. Silakan login.');
+      window.location.href='index.html';
+    });
+  </script>
+</body>
+</html>
