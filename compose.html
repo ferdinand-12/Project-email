@@ -178,6 +178,7 @@
       font-family: inherit;
       resize: vertical;
       transition: border-color 0.2s;
+      overflow-y: auto;
     }
 
     .email-body:focus {
@@ -232,7 +233,7 @@
       color: #fff;
     }
 
-    /* Toolbar untuk formatting (optional) */
+    /* Toolbar untuk formatting */
     .formatting-toolbar {
       display: flex;
       gap: 8px;
@@ -259,10 +260,101 @@
       color: #fff;
     }
 
+    .toolbar-btn.active {
+      background: #0078d4;
+      color: #fff;
+    }
+
     .divider {
       width: 1px;
       background: #444;
       margin: 0 4px;
+    }
+
+    /* Hidden file input */
+    #fileInput {
+      display: none;
+    }
+
+    /* Emoji picker */
+    .emoji-picker {
+      position: absolute;
+      background: #2c2c2c;
+      border: 1px solid #444;
+      border-radius: 6px;
+      padding: 10px;
+      display: none;
+      grid-template-columns: repeat(8, 1fr);
+      gap: 5px;
+      max-width: 300px;
+      z-index: 1000;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    }
+
+    .emoji-picker.show {
+      display: grid;
+    }
+
+    .emoji-item {
+      padding: 5px;
+      cursor: pointer;
+      border-radius: 4px;
+      font-size: 20px;
+      text-align: center;
+      transition: background 0.2s;
+    }
+
+    .emoji-item:hover {
+      background: #3a3a3a;
+    }
+
+    /* Link modal */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.7);
+      z-index: 2000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal.show {
+      display: flex;
+    }
+
+    .modal-content {
+      background: #2c2c2c;
+      padding: 20px;
+      border-radius: 8px;
+      width: 400px;
+      max-width: 90%;
+    }
+
+    .modal-header {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 15px;
+      color: #fff;
+    }
+
+    .modal-input {
+      width: 100%;
+      padding: 10px;
+      background: #2b2b2b;
+      border: 1px solid #444;
+      border-radius: 6px;
+      color: #fff;
+      margin-bottom: 10px;
+    }
+
+    .modal-buttons {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
     }
   </style>
 </head>
@@ -300,8 +392,8 @@
       </div>
 
       <div class="user-info">
-        <div style="color: #d4d4d4; font-weight: 600;">Sign / Log</div>
-        <a class="logout-link" id="logoutBtn">+ Add account</a>
+        <div style="color: #d4d4d4; font-weight: 600;" id="userEmail">user@pingme.com</div>
+        <a class="logout-link" id="logoutBtn">Logout</a>
       </div>
     </div>
 
@@ -327,21 +419,24 @@
           <input type="text" class="form-input" id="subjectInput" placeholder="Email subject">
         </div>
 
-        <div class="form-group" style="flex: 1; display: flex; flex-direction: column;">
+        <div class="form-group" style="flex: 1; display: flex; flex-direction: column; position: relative;">
           <label class="form-label">Message</label>
           
           <!-- Formatting Toolbar -->
           <div class="formatting-toolbar">
-            <button class="toolbar-btn" title="Bold"><strong>B</strong></button>
-            <button class="toolbar-btn" title="Italic"><em>I</em></button>
-            <button class="toolbar-btn" title="Underline"><u>U</u></button>
+            <button class="toolbar-btn" id="boldBtn" title="Bold"><strong>B</strong></button>
+            <button class="toolbar-btn" id="italicBtn" title="Italic"><em>I</em></button>
+            <button class="toolbar-btn" id="underlineBtn" title="Underline"><u>U</u></button>
             <div class="divider"></div>
-            <button class="toolbar-btn" title="Attach file">📎</button>
-            <button class="toolbar-btn" title="Insert link">🔗</button>
-            <button class="toolbar-btn" title="Insert emoji">😊</button>
+            <button class="toolbar-btn" id="attachBtn" title="Attach file">📎</button>
+            <button class="toolbar-btn" id="linkBtn" title="Insert link">🔗</button>
+            <button class="toolbar-btn" id="emojiBtn" title="Insert emoji">😊</button>
           </div>
 
-          <textarea class="email-body" id="emailBody" placeholder="Compose your email here..."></textarea>
+          <div contenteditable="true" class="email-body" id="emailBody" data-placeholder="Compose your email here..."></div>
+          
+          <!-- Emoji Picker -->
+          <div class="emoji-picker" id="emojiPicker"></div>
         </div>
       </div>
 
@@ -359,13 +454,135 @@
     </div>
   </div>
 
+  <!-- Link Modal -->
+  <div class="modal" id="linkModal">
+    <div class="modal-content">
+      <div class="modal-header">Insert Link</div>
+      <input type="text" class="modal-input" id="linkText" placeholder="Link text">
+      <input type="url" class="modal-input" id="linkUrl" placeholder="https://example.com">
+      <div class="modal-buttons">
+        <button class="btn btn-outline" id="cancelLinkBtn">Cancel</button>
+        <button class="btn btn-primary" id="insertLinkBtn">Insert</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hidden file input -->
+  <input type="file" id="fileInput" multiple>
+
   <script>
+    // Check login status
+    const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser') || 'null');
+    if (!loggedInUser) {
+      window.location.href = 'login.html';
+    }
+
+    // Display user email
+    if (loggedInUser) {
+      document.getElementById('userEmail').textContent = loggedInUser.email || 'user@pingme.com';
+    }
+
+    // Logout handler
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      localStorage.removeItem('loggedInUser');
+      window.location.href = 'login.html';
+    });
+
+    const emailBody = document.getElementById('emailBody');
+    const emojiPicker = document.getElementById('emojiPicker');
+    const linkModal = document.getElementById('linkModal');
+    
+    // Emoji list
+    const emojis = ['😀','😃','😄','😁','😆','😅','🤣','😂','🙂','🙃','😉','😊','😇','🥰','😍','🤩','😘','😗','☺️','😚','😙','🥲','😋','😛','😜','🤪','😝','🤑','🤗','🤭','🤫','🤔','🤐','🤨','😐','😑','😶','😏','😒','🙄','😬','🤥','😌','😔','😪','🤤','😴','😷','🤒','🤕','🤢','🤮','🤧','🥵','🥶','🥴','😵','🤯','🤠','🥳','🥸','😎','🤓','🧐','😕','😟','🙁','☹️','😮','😯','😲','😳','🥺','😦','😧','😨','😰','😥','😢','😭','😱','😖','😣','😞','😓','😩','😫','🥱','😤','😡','😠','🤬','👍','👎','👏','🙌','👐','🤝','🙏','✌️','🤞','🤟','🤘','🤙','👈','👉','👆','👇','☝️','👋','🤚','🖐️','✋','🖖','💪','🦾','🦿','🦵','🦶','👂','🦻','👃','🧠','🫀','🫁','🦷','🦴','👀','👁️','👅','👄','💋','🩸'];
+
+    // Populate emoji picker
+    emojis.forEach(emoji => {
+      const span = document.createElement('span');
+      span.className = 'emoji-item';
+      span.textContent = emoji;
+      span.onclick = () => {
+        insertAtCursor(emoji);
+        emojiPicker.classList.remove('show');
+      };
+      emojiPicker.appendChild(span);
+    });
+
+    // Bold button
+    document.getElementById('boldBtn').addEventListener('click', () => {
+      document.execCommand('bold', false, null);
+      emailBody.focus();
+    });
+
+    // Italic button
+    document.getElementById('italicBtn').addEventListener('click', () => {
+      document.execCommand('italic', false, null);
+      emailBody.focus();
+    });
+
+    // Underline button
+    document.getElementById('underlineBtn').addEventListener('click', () => {
+      document.execCommand('underline', false, null);
+      emailBody.focus();
+    });
+
+    // Attach file button
+    document.getElementById('attachBtn').addEventListener('click', () => {
+      document.getElementById('fileInput').click();
+    });
+
+    document.getElementById('fileInput').addEventListener('change', (e) => {
+      const files = Array.from(e.target.files);
+      files.forEach(file => {
+        insertAtCursor(`📎 ${file.name} `);
+      });
+    });
+
+    // Link button
+    document.getElementById('linkBtn').addEventListener('click', () => {
+      linkModal.classList.add('show');
+      document.getElementById('linkText').value = '';
+      document.getElementById('linkUrl').value = '';
+    });
+
+    document.getElementById('cancelLinkBtn').addEventListener('click', () => {
+      linkModal.classList.remove('show');
+    });
+
+    document.getElementById('insertLinkBtn').addEventListener('click', () => {
+      const text = document.getElementById('linkText').value || 'Link';
+      const url = document.getElementById('linkUrl').value;
+      if (url) {
+        const link = `<a href="${url}" style="color: #0078d4; text-decoration: underline;">${text}</a>`;
+        insertAtCursor(link);
+      }
+      linkModal.classList.remove('show');
+      emailBody.focus();
+    });
+
+    // Emoji button
+    document.getElementById('emojiBtn').addEventListener('click', () => {
+      emojiPicker.classList.toggle('show');
+    });
+
+    // Close emoji picker when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.toolbar-btn') && !e.target.closest('.emoji-picker')) {
+        emojiPicker.classList.remove('show');
+      }
+    });
+
+    // Insert content at cursor
+    function insertAtCursor(html) {
+      emailBody.focus();
+      document.execCommand('insertHTML', false, html);
+    }
+
     // Send button handler
     document.getElementById('sendBtn').addEventListener('click', () => {
       const to = document.getElementById('toInput').value;
       const cc = document.getElementById('ccInput').value;
       const subject = document.getElementById('subjectInput').value;
-      const body = document.getElementById('emailBody').value;
+      const body = emailBody.innerHTML;
 
       if (!to) {
         alert('Please enter recipient email address');
@@ -385,34 +602,19 @@
         subject: subject,
         body: body,
         date: new Date().toISOString(),
-        from: 'me@pingme.com' // Bisa diganti dengan email user yang login
+        from: loggedInUser.email || 'me@pingme.com'
       };
 
       // Get existing sent emails or create new array
-      let sentEmails = [];
-      const stored = window.fs ? null : localStorage.getItem('sentEmails');
-      if (stored) {
-        sentEmails = JSON.parse(stored);
-      }
-
+      let sentEmails = JSON.parse(localStorage.getItem('sentEmails') || '[]');
+      
       // Add new email to sent items
       sentEmails.unshift(sentEmail);
 
       // Save to storage
-      if (!window.fs) {
-        localStorage.setItem('sentEmails', JSON.stringify(sentEmails));
-      }
+      localStorage.setItem('sentEmails', JSON.stringify(sentEmails));
 
-      // Show success message
-      alert('Email sent successfully!');
-      
-      // Clear form
-      document.getElementById('toInput').value = '';
-      document.getElementById('ccInput').value = '';
-      document.getElementById('subjectInput').value = '';
-      document.getElementById('emailBody').value = '';
-      
-      // Redirect to inbox
+      // Redirect to inbox immediately
       window.location.href = 'inbox.html';
     });
 
@@ -421,7 +623,7 @@
       const to = document.getElementById('toInput').value;
       const cc = document.getElementById('ccInput').value;
       const subject = document.getElementById('subjectInput').value;
-      const body = document.getElementById('emailBody').value;
+      const body = emailBody.innerHTML;
 
       // Create draft object
       const draft = {
@@ -434,21 +636,13 @@
       };
 
       // Get existing drafts or create new array
-      let drafts = [];
-      const stored = window.fs ? null : localStorage.getItem('drafts');
-      if (stored) {
-        drafts = JSON.parse(stored);
-      }
-
+      let drafts = JSON.parse(localStorage.getItem('drafts') || '[]');
+      
       // Add new draft
       drafts.unshift(draft);
 
       // Save to storage
-      if (!window.fs) {
-        localStorage.setItem('drafts', JSON.stringify(drafts));
-      }
-
-      alert('Draft saved!');
+      localStorage.setItem('drafts', JSON.stringify(drafts));
       
       // Redirect to drafts page
       window.location.href = 'drafts.html';
@@ -456,21 +650,7 @@
 
     // Discard handler
     document.getElementById('discardBtn').addEventListener('click', () => {
-      if (confirm('Are you sure you want to discard this message?')) {
-        document.getElementById('toInput').value = '';
-        document.getElementById('ccInput').value = '';
-        document.getElementById('subjectInput').value = '';
-        document.getElementById('emailBody').value = '';
-        window.location.href = 'inbox.html';
-      }
-    });
-
-    // Toolbar button handlers (optional functionality)
-    document.querySelectorAll('.toolbar-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        // Add formatting functionality here if needed
-        console.log('Toolbar button clicked:', e.target.textContent);
-      });
+      window.location.href = 'inbox.html';
     });
   </script>
 </body>
