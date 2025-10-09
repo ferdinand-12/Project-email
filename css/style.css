@@ -100,3 +100,100 @@ body {
   font-size: 18px;
   letter-spacing: 0.5px;
 }
+
+h1.title {
+    margin: 6px 0 10px;
+    font-size: 28px;
+    text-align: center
+}
+
+.form-group {
+    margin: 18px 0
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+textarea,
+select {
+    width: 100%;
+    padding: 10px;
+    border-radius: 4px;
+    border: 0;
+    background: transparent;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    color: #e6eef6;
+}
+
+small.help {
+    color: var(--muted)
+}
+
+.button {
+    display: inline-block;
+    padding: 10px 16px;
+    border-radius: 6px;
+    background: var(--btn);
+    color: #fff;
+    border: 0;
+    cursor: pointer;
+    text-align: center;
+    min-width: 140px;
+}
+
+.btn-ghost {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    color: var(--muted);
+    padding: 10px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.error {
+    color: var(--danger);
+    font-size: 13px;
+    margin-top: 6px
+}
+
+.nav {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 18px
+}
+
+.layout {
+    display: flex;
+    height: 100vh;
+    gap: 18px;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.sidebar {
+    width: 240px;
+    background: rgba(255, 255, 255, 0.02);
+    padding: 14px;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 40px);
+}
+
+.compose-btn {
+    background: linear-gradient(135deg, #1fb6ff, #0a84ff);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 24px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    text-align: center;
+    cursor: pointer;
+    border: none;
+    width: 100%;
+    font-size: 15px;
+    box-shadow: 0 2px 8px rgba(10, 132, 255, 0.3);
+    transition: all 0.2s ease;
+}
