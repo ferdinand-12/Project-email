@@ -98,19 +98,6 @@ Project ini dibuat sebagai bagian dari **Ujian Tengah Semester - Front-End Progr
 
 ---
 
-## 👤 Akun Demo
-
-Untuk testing, gunakan akun demo yang sudah tersedia:
-
-```
-Email: alice@example.com
-Password: password123
-```
-
-Atau Anda bisa membuat akun baru melalui halaman **Sign Up**.
-
----
-
 ## 📋 Validasi Form
 
 ### Sign Up
