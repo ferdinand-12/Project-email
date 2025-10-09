@@ -138,3 +138,56 @@ function getEmail(folder, id) {
     if (!u) return null;
     return u.emails[folder].find(m => m.id === id) || null;
 }
+
+/* Contacts */
+function addContact({ name, email, phone }) {
+    updateCurrentUserData(u => {
+        const exists = u.contacts.find(c => c.email.toLowerCase() === email.toLowerCase());
+        if (!exists) u.contacts.push({ id: uid(), name, email, phone });
+    });
+}
+function editContact(id, data) {
+    updateCurrentUserData(u => {
+        const c = u.contacts.find(x => x.id === id);
+        if (c) { Object.assign(c, data); }
+    });
+}
+function removeContact(id) {
+    updateCurrentUserData(u => {
+        u.contacts = u.contacts.filter(x => x.id !== id);
+    });
+}
+
+/* Profile */
+function updateProfile({ name, phone }) {
+    updateCurrentUserData(u => {
+        u.name = name; u.phone = phone;
+    });
+}
+function changePassword(oldPass, newPass) {
+    const u = currentUser();
+    if (!u) return false;
+    if (u.password !== oldPass) return false;
+    updateCurrentUserData(u2 => u2.password = newPass);
+    return true;
+}
+
+/* Validation utils */
+function isValidEmail(email) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email); }
+function isValidPhone(phone) { return /^08\d{8,14}$/.test(phone); } // 10-16 digits total, starting with 08
+function isValidFullName(name) { return /^[A-Za-z ]{3,32}$/.test(name); }
+function initFormEvents() {
+    // Called by pages to wire specific forms; pages will handle logic using the functions above.
+}
+
+/* small helper to navigate pages */
+function go(path) { window.location.href = path; }
+
+/* Export for usage in HTML pages */
+window.PingMe = {
+    findUserByEmail, createUser, loginUser, logoutUser, currentUserEmail, currentUser,
+    sendEmail, saveDraft, moveToTrash, restoreFromTrash, deletePermanently,
+    toggleStar, getEmail, usersAll, addContact, editContact, removeContact,
+    updateProfile, changePassword, isValidEmail, isValidPhone, isValidFullName,
+    go
+};
