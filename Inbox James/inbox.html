@@ -68,5 +68,63 @@
 
   </div>
   <script src="inbox.js"></script>
+  <script>
+    const u = PingMe.currentUser();
+    if(!u){ window.location.href='login.html'; }
+    document.getElementById('userName').textContent = u.name;
+    document.getElementById('userEmail').textContent = u.email;
+
+    document.getElementById('logout').addEventListener('click', ()=>{
+      PingMe.logoutUser(); 
+      window.location.href='login.html';
+    });
+
+    function renderList(filter=''){
+      const listEl = document.getElementById('emailsList');
+      listEl.innerHTML='';
+      const inbox = PingMe.currentUser().emails.inbox;
+      const filtered = inbox.filter(m=> 
+        (m.subject||'').toLowerCase().includes(filter.toLowerCase()) || 
+        (m.from||'').toLowerCase().includes(filter.toLowerCase())
+      );
+      
+      if(filtered.length===0) {
+        listEl.innerHTML = '<li class="small" style="padding: 20px; text-align: center; color: var(--muted)">No messages</li>';
+        return;
+      }
+      
+      filtered.forEach(m=>{
+        const li = document.createElement('li');
+        li.innerHTML = `
+          <div style="flex:1; cursor: pointer" class="view" data-id="${m.id}">
+            <div style="font-weight:600">${m.from}</div>
+            <div class="meta">${m.subject || '(no subject)'} — ${m.body.slice(0,60)}...</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px">
+            <div class="small" style="color: var(--muted); min-width: 80px">${m.time.split('T')[0]}</div>
+            <div class="small link delete" data-id="${m.id}" style="white-space: nowrap">Delete</div>
+          </div>
+        `;
+        listEl.appendChild(li);
+      });
+      
+      q('.view').forEach(el=>el.addEventListener('click', e=>{
+        const id = e.currentTarget.dataset.id;
+        location.href = `email_detail.html?id=${id}&folder=inbox`;
+      }));
+      
+      q('.delete').forEach(el=>el.addEventListener('click', e=>{
+        e.stopPropagation();
+        const id = e.target.dataset.id;
+        if(confirm('Move to Trash?')){ 
+          PingMe.moveToTrash(id,'inbox'); 
+          location.reload(); 
+        }
+      }));
+    }
+    
+    renderList();
+    document.getElementById('search').addEventListener('input', (e)=>renderList(e.target.value));
+  </script>
 </body>
 </html>
