@@ -79,11 +79,11 @@ Project ini dibuat sebagai bagian dari **Ujian Tengah Semester - Pemrograman Web
 
 ## 🚀 Cara Menjalankan Website
 
-### Metode 1: Langsung dengan Browser (Recommended)
+### Langsung dengan Browser (Recommended)
 
 1. **Download/Clone Repository**
    ```bash
-   git clone https://github.com/your-username/pingme-email.git
+   git clone https://github.com/ferdinand-12/Project-email.git
    cd pingme-email
    ```
 
@@ -95,48 +95,6 @@ Project ini dibuat sebagai bagian dari **Ujian Tengah Semester - Pemrograman Web
 3. **Selesai!**
    - Website akan langsung berjalan
    - Gunakan akun demo atau buat akun baru
-
-### Metode 2: Menggunakan Live Server (Untuk Development)
-
-1. **Install Live Server Extension** (VS Code)
-   - Buka VS Code
-   - Install extension "Live Server" oleh Ritwick Dey
-
-2. **Jalankan Server**
-   ```bash
-   # Buka project folder di VS Code
-   code .
-   
-   # Klik kanan pada index.html → "Open with Live Server"
-   # Atau tekan Alt+L Alt+O
-   ```
-
-3. **Akses Website**
-   - Browser akan otomatis membuka `http://localhost:5500`
-
-### Metode 3: Menggunakan Python HTTP Server
-
-```bash
-# Python 3.x
-python -m http.server 8000
-
-# Python 2.x
-python -m SimpleHTTPServer 8000
-
-# Akses: http://localhost:8000
-```
-
-### Metode 4: Menggunakan Node.js HTTP Server
-
-```bash
-# Install http-server globally
-npm install -g http-server
-
-# Jalankan server
-http-server -p 8000
-
-# Akses: http://localhost:8000
-```
 
 ---
 
@@ -168,40 +126,6 @@ Atau Anda bisa membuat akun baru melalui halaman **Sign Up**.
 ### Profile
 - Validasi sama dengan sign up
 - Password lama harus benar untuk ganti password
-
----
-
-## 💾 Cara Kerja Data
-
-### LocalStorage
-Data disimpan di browser menggunakan LocalStorage API:
-- **Key**: `pingme_users` - Array berisi semua user
-- **Key**: `pingme_session` - Session user yang sedang login
-
-### Data Structure
-```javascript
-{
-  email: "user@example.com",
-  password: "hashed_password",
-  name: "User Name",
-  phone: "081234567890",
-  contacts: [...],
-  emails: {
-    inbox: [...],
-    sent: [...],
-    drafts: [...],
-    trash: [...],
-    starred: [...]
-  }
-}
-```
-
-### Reset Data
-Untuk reset semua data, buka Browser Console (F12) dan jalankan:
-```javascript
-localStorage.clear();
-location.reload();
-```
 
 ---
 
@@ -239,21 +163,6 @@ location.reload();
 
 ---
 
-## 🔮 Future Improvements
-
-- [ ] Backend integration (Node.js/PHP)
-- [ ] Database integration (MySQL/MongoDB)
-- [ ] Real email sending (SMTP)
-- [ ] File attachment support
-- [ ] Rich text editor
-- [ ] Email folders/labels
-- [ ] Email filters
-- [ ] Dark/Light theme toggle
-- [ ] Multi-language support
-- [ ] Mobile responsive optimization
-
----
-
 ## 👥 Tim Pengembang
 
 | Nama | NIM | Role |
@@ -269,13 +178,7 @@ location.reload();
 
 ## 📄 Lisensi
 
-Project ini dibuat untuk keperluan akademik - **Ujian Tengah Semester Pemrograman Web**.
-
----
-
-## 📞 Kontak & Support
-
-Jika menemukan bug atau memiliki pertanyaan, silakan hubungi tim pengembang atau buat issue di repository ini.
+Project ini dibuat untuk keperluan akademik - **Ujian Tengah Semester Front-End Programming**.
 
 ---
 
