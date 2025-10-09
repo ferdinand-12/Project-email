@@ -291,4 +291,4 @@ Jika menemukan bug atau memiliki pertanyaan, silakan hubungi tim pengembang atau
 
 ---
 
-*Last Updated: October 2024*
+*Last Updated: October 2025*
