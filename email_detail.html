@@ -4,7 +4,6 @@
   <meta charset="utf-8">
   <title>PingMe - Email Detail</title>
   <style>
-    /* Reset & Base */
     * {
       margin: 0;
       padding: 0;
@@ -19,13 +18,11 @@
       overflow: hidden;
     }
 
-    /* Layout */
     .layout {
       display: flex;
       height: 100vh;
     }
 
-    /* Sidebar */
     .sidebar {
       width: 280px;
       background: #141821;
@@ -57,7 +54,6 @@
       background: #0063ad;
     }
 
-    /* Menu */
     .menu {
       display: flex;
       flex-direction: column;
@@ -86,7 +82,6 @@
       font-weight: 600;
     }
 
-    /* Main Content */
     .main-content {
       flex: 1;
       display: flex;
@@ -118,14 +113,12 @@
       background: rgba(255, 255, 255, 0.1);
     }
 
-    /* Content Area */
     .content {
       flex: 1;
       overflow-y: auto;
       padding: 0;
     }
 
-    /* Email Detail */
     .email-detail {
       background: #141821;
       margin: 24px 32px;
@@ -182,7 +175,6 @@
       flex-wrap: wrap;
     }
 
-    /* Buttons */
     .btn {
       padding: 10px 20px;
       border: none;
@@ -319,7 +311,6 @@
       </div>
     </div>
 
-    <!-- Main Content -->
     <div class="main-content">
       <div class="topbar">
         <button class="back-btn" id="backBtn">← Back</button>
@@ -333,7 +324,6 @@
   </div>
 
   <script>
-    // PingMe Application - Inline
     const PingMe = {
       currentUser: function() {
         const userStr = localStorage.getItem('currentUser');
@@ -428,7 +418,6 @@
       }
     };
 
-    // Get URL parameters
     function getUrlParameter(name) {
       name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
       const regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
@@ -436,7 +425,6 @@
       return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
     }
 
-    // Check if user is logged in
     const currentUser = PingMe.currentUser();
     if (!currentUser) {
       window.location.href = 'index.html';
@@ -445,7 +433,6 @@
       document.getElementById('userEmail').textContent = currentUser.email;
     }
 
-    // Logout handler
     document.getElementById('logoutBtn').addEventListener('click', function() {
       if (confirm('Are you sure you want to logout?')) {
         PingMe.logoutUser();
@@ -453,16 +440,13 @@
       }
     });
 
-    // Get email ID and folder from URL
     const emailId = getUrlParameter('id');
     const folder = getUrlParameter('folder') || 'inbox';
 
-    // Back button
     document.getElementById('backBtn').addEventListener('click', function() {
       window.location.href = folder + '.html';
     });
 
-    // Load and display email
     function loadEmail() {
       const container = document.getElementById('emailDetailContainer');
       
@@ -478,7 +462,6 @@
         return;
       }
 
-      // Format date
       const date = new Date(email.time);
       const formattedDate = date.toLocaleDateString('en-US', { 
         weekday: 'long',
@@ -489,7 +472,6 @@
         minute: '2-digit'
       });
 
-      // Create email detail HTML
       const starClass = email.isStarred ? 'starred' : '';
       const starText = email.isStarred ? '★ Starred' : '☆ Star';
 
@@ -532,7 +514,6 @@ ${email.body}
         </div>
       `;
 
-      // Add event listeners
       document.getElementById('replyBtn').addEventListener('click', function() {
         window.location.href = `reply.html?id=${emailId}&folder=${folder}`;
       });
@@ -544,7 +525,7 @@ ${email.body}
       document.getElementById('starBtn').addEventListener('click', function() {
         const result = PingMe.toggleStar(emailId, folder);
         if (result.success) {
-          loadEmail(); // Reload to update star button
+          loadEmail(); 
         }
       });
 
@@ -559,7 +540,6 @@ ${email.body}
       });
     }
 
-    // Load email on page load
     loadEmail();
   </script>
 </body>

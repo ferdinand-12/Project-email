@@ -1,11 +1,10 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login - PingMe</title>
+  <meta charset="utf-8">
+  <title>PingMe - Inbox</title>
   <style>
-    /* Reset */
+    /* Reset & Base */
     * {
       margin: 0;
       padding: 0;
@@ -14,202 +13,408 @@
     }
 
     body {
-      background: #141821;
-      color: #fff;
+      background: #1e1e1e;
+      color: #e6eef6;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* Layout - 3 kolom */
+    .layout {
       display: flex;
-      justify-content: center;
-      align-items: center;
       height: 100vh;
     }
 
-    /* Container */
-    .login-container {
-      width: 100%;
-      max-width: 600px;
-      padding: 30px;
-    }
-
-    /* Box */
-    .login-box {
-      background: #1f2533;
-      border-radius: 12px;
-      padding: 60px 50px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.6);
-    }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      justify-content: left;
-      gap: 12px;
-      margin-bottom: 25px;
-      margin-top: -30px;
-    }
-
-    .brand img.logo {
-      width: 50px;
-      height: 50px;
-    }
-
-    .brand span {
-      color: #0078d4;
-      font-size: 36px;
-      font-weight: bold;
-    }
-
-    .title {
-      font-size: 40px;
-      font-weight: 600;
-      text-align: center;
-    }
-
-    .subtitle {
-      font-size: 18px;
-      color: #bbb;
-      text-align: center;
-      margin-bottom: 40px;
-    }
-
-    /* Input group */
-    .input-group {
-      position: relative;
-      margin-bottom: 32px;
-    }
-
-    .input-group input {
-      width: 100%;
-      padding: 18px 14px 14px;
-      border: none;
-      border-bottom: 2px solid #555;
-      background: transparent;
-      color: #fff;
-      font-size: 16px;
-    }
-
-    .input-group input:focus {
-      outline: none;
-      border-color: #0078d4;
-    }
-
-    .input-group input::placeholder {
-      color: transparent;
-    }
-
-    .input-group label {
-      position: absolute;
-      left: 14px;
-      top: 18px;
-      color: #aaa;
-      font-size: 15px;
-      pointer-events: none;
-      transition: all 0.2s ease;
-      background: #1f2533;
-      padding: 0 6px;
-      border-radius: 4px;
-    }
-
-    /* Label naik */
-    .input-group input:focus ~ label,
-    .input-group input:not(:placeholder-shown) ~ label,
-    .input-group.filled label {
-      top: -10px;
-      left: 10px;
-      font-size: 13px;
-      color: #0078d4;
-    }
-
-    /* Button */
-    .btn {
-      width: 100%;
+    /* Sidebar Kiri */
+    .sidebar {
+      width: 200px;
+      background: #252525;
       padding: 16px;
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid #3a3a3a;
+      overflow-y: auto;
+    }
+
+    .new-mail-btn {
       background: #0078d4;
+      color: white;
       border: none;
-      border-radius: 8px;
-      color: #fff;
-      font-size: 17px;
+      padding: 10px 16px;
+      border-radius: 4px;
+      font-size: 14px;
       font-weight: 600;
       cursor: pointer;
+      margin-bottom: 20px;
       transition: background 0.2s;
     }
 
-    .btn:hover {
+    .new-mail-btn:hover {
       background: #0063ad;
     }
 
-    /* Links */
-    .links {
-      margin-top: 28px;
+    /* Menu */
+    .menu {
       display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .menu-item {
+      padding: 10px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s;
+      color: #d4d4d4;
+      font-size: 14px;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
       justify-content: space-between;
     }
 
-    .links a {
-      color: #0078d4;
-      font-size: 14px;
-      text-decoration: none;
+    .menu-item:hover {
+      background: #333333;
     }
 
-    .links a:hover {
+    .menu-item.active {
+      background: #094771;
+      color: #ffffff;
+      font-weight: 600;
+    }
+
+    .menu-item .badge {
+      background: #0078d4;
+      color: white;
+      font-size: 11px;
+      padding: 2px 6px;
+      border-radius: 10px;
+      font-weight: 600;
+    }
+
+    .user-info {
+      margin-top: auto;
+      padding-top: 20px;
+      border-top: 1px solid #3a3a3a;
+      font-size: 12px;
+    }
+
+    .logout-link {
+      color: #0078d4;
+      cursor: pointer;
+      margin-top: 8px;
+      display: inline-block;
+    }
+
+    .logout-link:hover {
       text-decoration: underline;
     }
 
-    /* Alert */
-    .alert {
-      padding: 12px;
-      border-radius: 6px;
-      margin-bottom: 20px;
+    /* Email List (Tengah) */
+    .email-list-panel {
+      width: 380px;
+      background: #2d2d2d;
+      border-right: 1px solid #3a3a3a;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .email-list-header {
+      padding: 16px;
+      border-bottom: 1px solid #3a3a3a;
+    }
+
+    .email-list-header h2 {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+
+    .search-box {
+      width: 100%;
+      background: #1e1e1e;
+      border: 1px solid #3a3a3a;
+      border-radius: 4px;
+      padding: 8px 12px;
+      color: #e6eef6;
+      font-size: 13px;
+      outline: none;
+    }
+
+    .search-box::placeholder {
+      color: #808080;
+    }
+
+    .search-box:focus {
+      border-color: #0078d4;
+    }
+
+    .email-list {
+      flex: 1;
+      overflow-y: auto;
+      list-style: none;
+    }
+
+    .email-item {
+      padding: 16px;
+      border-bottom: 1px solid #3a3a3a;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .email-item:hover {
+      background: #333333;
+    }
+
+    .email-item.active {
+      background: #094771;
+    }
+
+    .email-item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .email-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #0078d4;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
       font-size: 14px;
+      margin-right: 10px;
+      flex-shrink: 0;
+    }
+
+    .email-from {
+      font-weight: 600;
+      font-size: 14px;
+      color: #ffffff;
+      flex: 1;
+    }
+
+    .email-time {
+      font-size: 11px;
+      color: #808080;
+    }
+
+    .email-subject {
+      font-size: 13px;
+      color: #d4d4d4;
+      margin-bottom: 4px;
+      font-weight: 500;
+    }
+
+    .email-preview {
+      font-size: 12px;
+      color: #808080;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    /* Detail Panel (Kanan) */
+    .detail-panel {
+      flex: 1;
+      background: #1e1e1e;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .detail-empty {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      color: #808080;
+      font-size: 15px;
+    }
+
+    .detail-content {
       display: none;
+      flex-direction: column;
+      height: 100%;
     }
 
-    .alert.show {
-      display: block;
+    .detail-content.active {
+      display: flex;
     }
 
-    .alert-error {
-      background: rgba(255, 68, 68, 0.1);
-      border: 1px solid rgba(255, 68, 68, 0.3);
-      color: #ff4444;
+    .detail-header {
+      padding: 24px 32px;
+      border-bottom: 1px solid #3a3a3a;
     }
 
-    .alert-success {
-      background: rgba(0, 200, 0, 0.1);
-      border: 1px solid rgba(0, 200, 0, 0.3);
-      color: #00ff00;
+    .detail-actions {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .action-btn {
+      background: #2d2d2d;
+      border: 1px solid #3a3a3a;
+      color: #d4d4d4;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 13px;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .action-btn:hover {
+      background: #333333;
+      border-color: #0078d4;
+    }
+
+    .detail-subject {
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      color: #ffffff;
+    }
+
+    .detail-info {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      font-size: 13px;
+      color: #d4d4d4;
+    }
+
+    .detail-info-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .detail-info-label {
+      color: #808080;
+      min-width: 80px;
+    }
+
+    .detail-body {
+      flex: 1;
+      padding: 32px;
+      overflow-y: auto;
+      line-height: 1.6;
+      color: #d4d4d4;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #3a3a3a;
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #4a4a4a;
     }
   </style>
 </head>
 <body>
-  <div class="login-container">
-    <div class="login-box">
-      <div class="brand">
-        <div style="width: 50px; height: 50px; background: #0078d4; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold;">P</div>
-        <span>PingMe</span>
-      </div>
+  <div class="layout">
+    <!-- Sidebar Kiri -->
+    <div class="sidebar">
+      <button class="new-mail-btn" onclick="location.href='compose.html'">+ New Mail</button>
       
-      <h2 class="title">Sign in</h2>
-      <p class="subtitle">to continue to your account</p>
+      <div class="menu">
+        <a href="inbox.html" class="menu-item active">
+          <span>Inbox</span>
+          <span class="badge" id="inboxCount">0</span>
+        </a>
+        <a href="trash.html" class="menu-item">
+          <span>Trash</span>
+          <span class="badge" id="trashCount">0</span>
+        </a>
+        <a href="drafts.html" class="menu-item">
+          <span>Draft</span>
+          <span class="badge" id="draftCount">0</span>
+        </a>
+        <a href="sent.html" class="menu-item">
+          <span>Sent Items</span>
+        </a>
+        <a href="contacts.html" class="menu-item">
+          <span>Contacts</span>
+        </a>
+        <a href="starred.html" class="menu-item">
+          <span>Starred</span>
+        </a>
+        <a href="profile.html" class="menu-item">
+          <span>Profiles</span>
+        </a>
+      </div>
 
-      <div id="alertMessage" class="alert"></div>
+      <div class="user-info">
+        <div style="color: #d4d4d4; font-weight: 600;">Sign / Log</div>
+        <a class="logout-link" id="logoutBtn">+ Add account</a>
+      </div>
+    </div>
 
-      <form id="loginForm">
-        <div class="input-group">
-          <input type="email" id="email" required placeholder=" " value="james.535240082@stu.untar.ac.id">
-          <label for="email">Email address</label>
+    <!-- Email List Panel (Tengah) -->
+    <div class="email-list-panel">
+      <div class="email-list-header">
+        <h2>Focused</h2>
+        <input type="text" class="search-box" id="searchBox" placeholder="Search">
+      </div>
+
+      <ul class="email-list" id="emailList"></ul>
+    </div>
+
+    <!-- Detail Panel (Kanan) -->
+    <div class="detail-panel">
+      <div class="detail-empty" id="detailEmpty">
+        Select an email to read
+      </div>
+
+      <div class="detail-content" id="detailContent">
+        <div class="detail-header">
+          <div class="detail-actions">
+            <button class="action-btn" id="replyBtn">↩ Reply</button>
+            <button class="action-btn" id="forwardBtn">➤ Forward</button>
+            <button class="action-btn" id="deleteBtn">🗑 Delete</button>
+            <button class="action-btn" id="starBtn">☆ Star</button>
+          </div>
+
+          <h1 class="detail-subject" id="detailSubject"></h1>
+
+          <div class="detail-info">
+            <div class="detail-info-row">
+              <span class="detail-info-label">From:</span>
+              <span id="detailFrom"></span>
+            </div>
+            <div class="detail-info-row">
+              <span class="detail-info-label">To:</span>
+              <span id="detailTo"></span>
+            </div>
+            <div class="detail-info-row">
+              <span class="detail-info-label">Date:</span>
+              <span id="detailDate"></span>
+            </div>
+          </div>
         </div>
 
-        <div class="input-group">
-          <input type="password" id="password" required placeholder=" " value="password123">
-          <label for="password">Password</label>
-        </div>
-
-        <button type="submit" class="btn">Sign in</button>
-
-        <div class="links">
-          <a href="#" onclick="alert('Feature coming soon!'); return false;">Forgot password?</a>
-          <a href="signup.html">Create account</a>
-        </div>
-      </form>
+        <div class="detail-body" id="detailBody"></div>
+      </div>
     </div>
   </div>
 
@@ -234,151 +439,231 @@
         localStorage.setItem('users', JSON.stringify(users));
       },
 
-      loginUser: function(email, password) {
+      logoutUser: function() {
+        localStorage.removeItem('currentUser');
+      },
+
+      moveToTrash: function(emailId, fromFolder) {
         const users = this.getAllUsers();
-        const user = users.find(u => u.email === email && u.password === password);
+        const currentUser = this.currentUser();
         
-        if (user) {
+        if (!currentUser) return { success: false };
+
+        const userIndex = users.findIndex(u => u.id === currentUser.id);
+        const user = users[userIndex];
+
+        const folderIndex = user.emails[fromFolder].findIndex(e => e.id === emailId);
+        
+        if (folderIndex !== -1) {
+          const email = user.emails[fromFolder][folderIndex];
+          user.emails[fromFolder].splice(folderIndex, 1);
+          
+          email.deletedFrom = fromFolder;
+          email.deletedAt = new Date().toISOString();
+          user.emails.trash.push(email);
+
+          this.saveAllUsers(users);
           this.setCurrentUser(user);
-          return { success: true, message: 'Login successful' };
+          return { success: true };
         }
-        return { success: false, message: 'Invalid email or password' };
+
+        return { success: false };
+      },
+
+      toggleStar: function(emailId, folder) {
+        const users = this.getAllUsers();
+        const currentUser = this.currentUser();
+        
+        if (!currentUser) return { success: false };
+
+        const userIndex = users.findIndex(u => u.id === currentUser.id);
+        const user = users[userIndex];
+
+        const emailIndex = user.emails[folder].findIndex(e => e.id === emailId);
+        
+        if (emailIndex !== -1) {
+          const email = user.emails[folder][emailIndex];
+          email.isStarred = !email.isStarred;
+
+          if (email.isStarred) {
+            const starredCopy = {...email, originalFolder: folder};
+            const existingIndex = user.emails.starred.findIndex(e => e.id === emailId);
+            if (existingIndex === -1) {
+              user.emails.starred.push(starredCopy);
+            }
+          } else {
+            const starredIndex = user.emails.starred.findIndex(e => e.id === emailId);
+            if (starredIndex !== -1) {
+              user.emails.starred.splice(starredIndex, 1);
+            }
+          }
+
+          this.saveAllUsers(users);
+          this.setCurrentUser(user);
+          return { success: true, isStarred: email.isStarred };
+        }
+
+        return { success: false };
       }
     };
 
-    // Initialize sample data if needed
-    if (!localStorage.getItem('users')) {
-      const sampleUser = {
-        id: '1',
-        name: 'james',
-        email: 'james.535240082@stu.untar.ac.id',
-        password: 'password123',
-        phone: '081234567890',
-        createdAt: new Date().toISOString(),
-        emails: {
-          inbox: [
-            {
-              id: '1',
-              from: 'john.doe@example.com',
-              to: 'james.535240082@stu.untar.ac.id',
-              subject: 'Welcome to PingMe',
-              body: 'Welcome to PingMe email service! We are excited to have you on board. This is a sample email to get you started with our platform.',
-              time: new Date(Date.now() - 86400000).toISOString(),
-              isStarred: false,
-              isRead: false
-            },
-            {
-              id: '2',
-              from: 'sarah.johnson@company.com',
-              to: 'james.535240082@stu.untar.ac.id',
-              subject: 'Project Update',
-              body: 'Hi, I wanted to give you a quick update on our project status. Everything is progressing well and we are on track to meet our deadline.',
-              time: new Date(Date.now() - 172800000).toISOString(),
-              isStarred: false,
-              isRead: false
-            },
-            {
-              id: '3',
-              from: 'notifications@pingme.com',
-              to: 'james.535240082@stu.untar.ac.id',
-              subject: 'Your account is ready',
-              body: 'Your PingMe account has been successfully created. You can now start sending and receiving emails. Enjoy our service!',
-              time: new Date(Date.now() - 259200000).toISOString(),
-              isStarred: true,
-              isRead: true
-            }
-          ],
-          sent: [],
-          drafts: [],
-          trash: [],
-          starred: []
-        },
-        contacts: [
-          {
-            id: '1',
-            name: 'John Doe',
-            email: 'john.doe@example.com',
-            phone: '081234567891'
-          }
-        ]
+    // Check if user is logged in
+    const currentUser = PingMe.currentUser();
+    if (!currentUser) {
+      window.location.href = 'index.html';
+    }
+
+    // Update badge counts
+    function updateBadges() {
+      const user = PingMe.currentUser();
+      document.getElementById('inboxCount').textContent = user.emails.inbox.length;
+      document.getElementById('trashCount').textContent = user.emails.trash.length;
+      document.getElementById('draftCount').textContent = user.emails.drafts.length;
+    }
+
+    // Logout handler
+    document.getElementById('logoutBtn').addEventListener('click', function() {
+      if (confirm('Are you sure you want to logout?')) {
+        PingMe.logoutUser();
+        window.location.href = 'index.html';
+      }
+    });
+
+    let selectedEmailId = null;
+
+    // Render email list
+    function renderEmails(filter = '') {
+      const emailList = document.getElementById('emailList');
+      const user = PingMe.currentUser();
+      
+      if (!user || !user.emails.inbox) {
+        emailList.innerHTML = '<li style="padding: 20px; text-align: center; color: #808080;">No messages</li>';
+        return;
+      }
+
+      const inbox = user.emails.inbox;
+      const filtered = inbox.filter(email => 
+        (email.subject || '').toLowerCase().includes(filter.toLowerCase()) ||
+        (email.from || '').toLowerCase().includes(filter.toLowerCase())
+      );
+
+      if (filtered.length === 0) {
+        emailList.innerHTML = '<li style="padding: 20px; text-align: center; color: #808080;">No messages found</li>';
+        return;
+      }
+
+      emailList.innerHTML = '';
+
+      filtered.forEach(email => {
+        const li = document.createElement('li');
+        li.className = 'email-item';
+        if (selectedEmailId === email.id) {
+          li.classList.add('active');
+        }
+
+        const date = new Date(email.time);
+        const now = new Date();
+        const diffTime = Math.abs(now - date);
+        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+        
+        let formattedTime;
+        if (diffDays === 0) {
+          formattedTime = date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+        } else if (diffDays < 7) {
+          formattedTime = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        } else {
+          formattedTime = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        }
+
+        const initial = email.from.charAt(0).toUpperCase();
+
+        li.innerHTML = `
+          <div style="display: flex; align-items: start; gap: 10px;">
+            <div class="email-avatar">${initial}</div>
+            <div style="flex: 1; min-width: 0;">
+              <div class="email-item-header">
+                <div class="email-from">${email.from.split('@')[0]}</div>
+                <div class="email-time">${formattedTime}</div>
+              </div>
+              <div class="email-subject">${email.subject || '(no subject)'}</div>
+              <div class="email-preview">${email.body}</div>
+            </div>
+          </div>
+        `;
+
+        li.addEventListener('click', function() {
+          selectedEmailId = email.id;
+          showEmailDetail(email);
+          renderEmails(filter);
+        });
+
+        emailList.appendChild(li);
+      });
+    }
+
+    // Show email detail
+    function showEmailDetail(email) {
+      document.getElementById('detailEmpty').style.display = 'none';
+      document.getElementById('detailContent').classList.add('active');
+
+      const date = new Date(email.time);
+      const formattedDate = date.toLocaleDateString('en-US', { 
+        weekday: 'long',
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+
+      document.getElementById('detailSubject').textContent = email.subject || '(no subject)';
+      document.getElementById('detailFrom').textContent = email.from;
+      document.getElementById('detailTo').textContent = email.to || currentUser.email;
+      document.getElementById('detailDate').textContent = formattedDate;
+      document.getElementById('detailBody').textContent = email.body;
+
+      const starBtn = document.getElementById('starBtn');
+      starBtn.textContent = email.isStarred ? '★ Starred' : '☆ Star';
+      starBtn.style.color = email.isStarred ? '#ffd700' : '#d4d4d4';
+
+      // Update button handlers
+      document.getElementById('replyBtn').onclick = () => {
+        window.location.href = `reply.html?id=${email.id}&folder=inbox`;
       };
 
-      localStorage.setItem('users', JSON.stringify([sampleUser]));
+      document.getElementById('forwardBtn').onclick = () => {
+        window.location.href = `compose.html?forward=${email.id}&folder=inbox`;
+      };
+
+      document.getElementById('deleteBtn').onclick = () => {
+        if (confirm('Move this email to trash?')) {
+          PingMe.moveToTrash(email.id, 'inbox');
+          selectedEmailId = null;
+          document.getElementById('detailEmpty').style.display = 'flex';
+          document.getElementById('detailContent').classList.remove('active');
+          renderEmails();
+          updateBadges();
+        }
+      };
+
+      document.getElementById('starBtn').onclick = () => {
+        PingMe.toggleStar(email.id, 'inbox');
+        const updatedUser = PingMe.currentUser();
+        const updatedEmail = updatedUser.emails.inbox.find(e => e.id === email.id);
+        if (updatedEmail) {
+          showEmailDetail(updatedEmail);
+        }
+      };
     }
 
-    // Check if already logged in
-    if (PingMe.currentUser()) {
-      window.location.href = 'login.html';
-    }
-
-    // Handle input labels
-    document.addEventListener('DOMContentLoaded', () => {
-      const inputs = document.querySelectorAll('.input-group input');
-      
-      // Check for autofill
-      setTimeout(() => {
-        inputs.forEach(input => {
-          if (input.value.trim() !== '') {
-            input.parentElement.classList.add('filled');
-          }
-        });
-      }, 200);
-
-      // Input event listeners
-      inputs.forEach(input => {
-        input.addEventListener('input', () => {
-          if (input.value.trim() !== '') {
-            input.parentElement.classList.add('filled');
-          } else {
-            input.parentElement.classList.remove('filled');
-          }
-        });
-        
-        input.addEventListener('blur', () => {
-          if (input.value.trim() !== '') {
-            input.parentElement.classList.add('filled');
-          }
-        });
-      });
-
-      // Form submission
-      document.getElementById('loginForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        const email = document.getElementById('email').value.trim();
-        const password = document.getElementById('password').value;
-        const alertDiv = document.getElementById('alertMessage');
-
-        // Validation
-        if (!email || !password) {
-          alertDiv.className = 'alert alert-error show';
-          alertDiv.textContent = 'All fields are required';
-          return;
-        }
-
-        // Email format validation
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(email)) {
-          alertDiv.className = 'alert alert-error show';
-          alertDiv.textContent = 'Please enter a valid email address';
-          return;
-        }
-
-        // Login attempt
-        const result = PingMe.loginUser(email, password);
-        
-        if (result.success) {
-          alertDiv.className = 'alert alert-success show';
-          alertDiv.textContent = 'Login successful! Redirecting...';
-          setTimeout(() => {
-            window.location.href = 'inbox.html';
-          }, 1000);
-        } else {
-          alertDiv.className = 'alert alert-error show';
-          alertDiv.textContent = result.message;
-        }
-      });
+    // Search functionality
+    document.getElementById('searchBox').addEventListener('input', function(e) {
+      renderEmails(e.target.value);
     });
+
+    // Initial render
+    updateBadges();
+    renderEmails();
   </script>
 </body>
 </html>
