@@ -156,10 +156,10 @@ Project ini dibuat sebagai bagian dari **Ujian Tengah Semester - Front-End Progr
 |------|-----|------|
 | **James William Wijaya** | 535240082 | Frontend Developer |
 | **Kyeth Fernando** | 535240084 | Frontend Developer |
-| **Priscilla Rebekah Tedja** | 535240086 | UI/UX Designer |
-| **Ferdinand Gouwadi** | 535240087 | JavaScript Developer |
+| **Priscilla Rebekah Tedja** | 535240086 | Frontend Developer |
+| **Ferdinand Gouwadi** | 535240087 | Frontend Developer |
 | **Nicholas Isaiah** | 535240144 | Frontend Developer |
-| **Juan Christian Handoko** | 535240179 | Quality Assurance |
+| **Juan Christian Handoko** | 535240179 | Frontend Developer |
 
 ---
 
