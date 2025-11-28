@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Sidebar from '@/components/Sidebar';
-import { currentUser, updateProfile, changePassword, isValidFullName, isValidPhone, logoutUser } from '@/lib/db';
+import { getCurrentUser, updateProfile, changePassword, isValidFullName, isValidPhone, logoutUser } from '@/lib/db';
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -15,19 +15,31 @@ export default function ProfilePage() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const user = currentUser();
-    if (!user) {
-      router.push('/login');
-      return;
-    }
-    setName(user.name);
-    setEmail(user.email);
-    setPhone(user.phone || '');
+    loadProfile();
   }, [router]);
 
-  const handleSaveProfile = () => {
+  const loadProfile = async () => {
+    setLoading(true);
+    try {
+      const user = await getCurrentUser();
+      if (!user) {
+        router.push('/login');
+        return;
+      }
+      setName(user.name);
+      setEmail(user.email);
+      setPhone(user.phone || '');
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSaveProfile = async () => {
     setError('');
     setSuccess('');
 
@@ -46,15 +58,18 @@ export default function ProfilePage() {
       return;
     }
 
-    updateProfile({ name, phone });
-    setSuccess('Profile berhasil diupdate!');
-    
-    setTimeout(() => {
-      router.refresh();
-    }, 1000);
+    try {
+      await updateProfile({ name, phone });
+      setSuccess('Profile berhasil diupdate!');
+      setTimeout(() => {
+        router.refresh();
+      }, 1000);
+    } catch (err: any) {
+      setError(err.message || 'Gagal update profile.');
+    }
   };
 
-  const handleChangePassword = () => {
+  const handleChangePassword = async () => {
     setError('');
     setSuccess('');
 
@@ -73,16 +88,31 @@ export default function ProfilePage() {
       return;
     }
 
-    const ok = changePassword(oldPassword, newPassword);
-    if (!ok) {
-      setError('Kata sandi lama salah.');
-      return;
-    }
+    try {
+      const ok = await changePassword(oldPassword, newPassword);
+      if (!ok) {
+        setError('Gagal mengubah password.');
+        return;
+      }
 
-    alert('Password berhasil diubah. Silakan login kembali.');
-    logoutUser();
-    router.push('/login');
+      alert('Password berhasil diubah. Silakan login kembali.');
+      await logoutUser();
+      router.push('/login');
+    } catch (err: any) {
+      setError(err.message || 'Gagal mengubah password.');
+    }
   };
+
+  if (loading) {
+    return (
+      <div className="layout">
+        <Sidebar />
+        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <p>Loading profile...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="layout">

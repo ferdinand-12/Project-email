@@ -4,62 +4,46 @@
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams, useParams } from 'next/navigation';
 import Sidebar from '@/components/Sidebar';
-import { currentUser, moveToTrash, toggleStar } from '@/lib/db';
+import { getCurrentUser, moveToTrash, toggleStar, getEmail } from '@/lib/db';
 import { Email } from '@/types';
 
 export default function EmailDetailPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const params = useParams(); // Use useParams hook instead
-  const emailId = params.id as string; // Get ID from params
+  const params = useParams();
+  const emailId = params.id as string;
   const folder = (searchParams.get('folder') as any) || 'inbox';
   const [email, setEmail] = useState<Email | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!emailId) return;
+    loadEmail();
+  }, [emailId, router]);
 
-    console.log('Loading email with ID:', emailId);
-    console.log('Folder:', folder);
-
-    const user = currentUser();
-    if (!user) {
-      router.push('/login');
-      return;
-    }
-
-    // Search email by ID in ALL folders
-    let foundEmail: Email | null = null;
-
-    // Check all folders
-    const allFolders: Array<keyof typeof user.emails> = ['inbox', 'sent', 'drafts', 'trash', 'starred'];
-
-    for (const folderName of allFolders) {
-      const emailsInFolder = user.emails[folderName];
-      console.log(`Checking ${folderName}, count:`, emailsInFolder.length);
-
-      foundEmail = emailsInFolder.find(e => {
-        console.log('Comparing:', e.id, 'with', emailId);
-        return e.id === emailId;
-      }) || null;
-
-      if (foundEmail) {
-        console.log(`✅ Found email in ${folderName}:`, foundEmail);
-        break;
+  const loadEmail = async () => {
+    setLoading(true);
+    try {
+      const user = await getCurrentUser();
+      if (!user) {
+        router.push('/login');
+        return;
       }
-    }
 
-    if (!foundEmail) {
-      console.error('❌ Email not found in any folder. ID:', emailId);
-      console.log('Available emails:', user.emails);
-      alert('Email tidak ditemukan');
-      router.push('/inbox');
-      return;
-    }
+      if (!emailId) return;
 
-    setEmail(foundEmail);
-    setLoading(false);
-  }, [emailId, folder, router]);
+      const foundEmail = await getEmail(emailId);
+      if (!foundEmail) {
+        alert('Email tidak ditemukan');
+        router.push('/inbox');
+        return;
+      }
+      setEmail(foundEmail);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleReply = () => {
     router.push(`/reply/${emailId}?folder=${folder}`);
@@ -75,29 +59,20 @@ export default function EmailDetailPage() {
     router.push('/compose');
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (confirm('Pindahkan ke Trash?')) {
-      moveToTrash(emailId, folder);
+      await moveToTrash(emailId);
       alert('Email dipindahkan ke Trash');
       router.push('/inbox');
     }
   };
 
-  const handleToggleStar = () => {
-    toggleStar(emailId, folder);
-    // Reload email
-    const user = currentUser();
-    if (user) {
-      const allFolders: Array<keyof typeof user.emails> = ['inbox', 'sent', 'drafts', 'trash', 'starred'];
-      let updated: Email | null = null;
-
-      for (const f of allFolders) {
-        updated = user.emails[f].find(e => e.id === emailId) || null;
-        if (updated) break;
-      }
-
-      if (updated) setEmail(updated);
-    }
+  const handleToggleStar = async () => {
+    if (!email) return;
+    const newStatus = !email.starred;
+    // Optimistic update
+    setEmail({ ...email, starred: newStatus });
+    await toggleStar(emailId, email.starred);
   };
 
   if (loading) {

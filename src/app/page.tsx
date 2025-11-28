@@ -3,14 +3,18 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { currentUser } from '@/lib/db';
+import { getCurrentUser } from '@/lib/db';
 
 export default function HomePage() {
   const router = useRouter();
 
   useEffect(() => {
+    checkAuth();
+  }, [router]);
+
+  const checkAuth = async () => {
     // Check if user is logged in
-    const user = currentUser();
+    const user = await getCurrentUser();
 
     if (user) {
       // If logged in, redirect to inbox
@@ -19,7 +23,7 @@ export default function HomePage() {
       // If not logged in, redirect to login
       router.push('/login');
     }
-  }, [router]);
+  };
 
   // Show loading while redirecting
   return (
@@ -39,8 +43,6 @@ export default function HomePage() {
           </div>
         </div>
         <p>Loading...</p>
-
-
       </div>
     </div>
   );

@@ -3,23 +3,36 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Sidebar from '@/components/Sidebar';
-import { currentUser, addContact, editContact, removeContact, isValidEmail, isValidPhone } from '@/lib/db';
+import { getCurrentUser, getContacts, addContact, editContact, removeContact, isValidEmail, isValidPhone } from '@/lib/db';
 import { Contact } from '@/types';
 
 export default function ContactsPage() {
   const router = useRouter();
   const [contacts, setContacts] = useState<Contact[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const user = currentUser();
-    if (!user) {
-      router.push('/login');
-      return;
-    }
-    setContacts(user.contacts);
+    loadContacts();
   }, [router]);
 
-  const handleAddContact = () => {
+  const loadContacts = async () => {
+    setLoading(true);
+    try {
+      const user = await getCurrentUser();
+      if (!user) {
+        router.push('/login');
+        return;
+      }
+      const data = await getContacts();
+      setContacts(data);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAddContact = async () => {
     const name = prompt('Nama');
     const email = prompt('Email');
     const phone = prompt('Telepon (format: 08xxxxxxxxxx)');
@@ -39,14 +52,16 @@ export default function ContactsPage() {
       return;
     }
 
-    addContact({ name, email, phone });
-    
-    // Reload contacts
-    const user = currentUser();
-    if (user) setContacts(user.contacts);
+    try {
+      await addContact({ name, email, phone });
+      loadContacts();
+    } catch (error) {
+      console.error(error);
+      alert('Gagal menambahkan kontak');
+    }
   };
 
-  const handleEditContact = (contact: Contact) => {
+  const handleEditContact = async (contact: Contact) => {
     const name = prompt('Nama', contact.name);
     const email = prompt('Email', contact.email);
     const phone = prompt('Telepon', contact.phone);
@@ -63,20 +78,24 @@ export default function ContactsPage() {
       return;
     }
 
-    editContact(contact.id, { name, email, phone });
-    
-    // Reload contacts
-    const user = currentUser();
-    if (user) setContacts(user.contacts);
+    try {
+      await editContact(contact.id, { name, email, phone });
+      loadContacts();
+    } catch (error) {
+      console.error(error);
+      alert('Gagal mengedit kontak');
+    }
   };
 
-  const handleDeleteContact = (id: string) => {
+  const handleDeleteContact = async (id: string) => {
     if (confirm('Hapus kontak ini?')) {
-      removeContact(id);
-      
-      // Reload contacts
-      const user = currentUser();
-      if (user) setContacts(user.contacts);
+      try {
+        await removeContact(id);
+        loadContacts();
+      } catch (error) {
+        console.error(error);
+        alert('Gagal menghapus kontak');
+      }
     }
   };
 
@@ -93,7 +112,11 @@ export default function ContactsPage() {
         </div>
 
         <div className="card">
-          {contacts.length === 0 ? (
+          {loading ? (
+            <div style={{ padding: '40px', textAlign: 'center', color: 'var(--muted)' }}>
+              Loading...
+            </div>
+          ) : contacts.length === 0 ? (
             <div style={{ padding: '40px', textAlign: 'center', color: 'var(--muted)' }}>
               Belum ada kontak. Tambahkan kontak pertama Anda!
             </div>

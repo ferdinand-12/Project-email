@@ -1,12 +1,13 @@
 // src/types/index.ts - TypeScript Type Definitions
 
 export interface User {
+  id?: string;
   email: string;
-  password: string;
+  password?: string;
   name: string;
   phone: string;
-  contacts: Contact[];
-  emails: {
+  contacts?: Contact[];
+  emails?: {
     inbox: Email[];
     sent: Email[];
     drafts: Email[];
@@ -24,6 +25,7 @@ export interface Email {
   time: string;
   attachments: string[];
   starred: boolean;
+  folder?: string;
 }
 
 export interface Contact {

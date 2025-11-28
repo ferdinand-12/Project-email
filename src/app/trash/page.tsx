@@ -3,38 +3,46 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Sidebar from '@/components/Sidebar';
-import { currentUser, restoreFromTrash, deletePermanently } from '@/lib/db';
+import { getCurrentUser, getEmails, restoreFromTrash, deletePermanently } from '@/lib/db';
 import { Email } from '@/types';
 
 export default function TrashPage() {
   const router = useRouter();
   const [emails, setEmails] = useState<Email[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const user = currentUser();
-    if (!user) {
-      router.push('/login');
-      return;
-    }
-    setEmails(user.emails.trash);
+    loadEmails();
   }, [router]);
 
-  const handleRestore = (id: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    restoreFromTrash(id);
-    alert('Email dipulihkan ke Inbox');
-    // Reload emails
-    const user = currentUser();
-    if (user) setEmails(user.emails.trash);
+  const loadEmails = async () => {
+    setLoading(true);
+    try {
+      const user = await getCurrentUser();
+      if (!user) {
+        router.push('/login');
+        return;
+      }
+      const data = await getEmails('trash');
+      setEmails(data);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleDeletePermanent = (id: string, e: React.MouseEvent) => {
+  const handleRestore = async (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
-    if (confirm('Hapus email ini secara permanen? Tindakan ini tidak dapat dibatalkan.')) {
-      deletePermanently(id);
-      // Reload emails
-      const user = currentUser();
-      if (user) setEmails(user.emails.trash);
+    await restoreFromTrash(id);
+    loadEmails();
+  };
+
+  const handleDelete = async (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
+    if (confirm('Hapus permanen?')) {
+      await deletePermanently(id);
+      loadEmails();
     }
   };
 
@@ -48,43 +56,42 @@ export default function TrashPage() {
         </div>
 
         <div className="card">
-          <ul className="email-list">
-            {emails.length === 0 ? (
-              <li className="small" style={{ padding: '20px', textAlign: 'center' }}>
-                Trash kosong
-              </li>
-            ) : (
-              emails.map((email) => (
-                <li key={email.id}>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontWeight: 600 }}>{email.from}</div>
-                    <div className="meta">
-                      {email.subject || '(no subject)'} — {email.body.slice(0, 60)}...
-                    </div>
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <div className="small" style={{ minWidth: '80px' }}>
-                      {new Date(email.time).toLocaleDateString()}
-                    </div>
-                    <div
-                      className="small link"
-                      onClick={(e) => handleRestore(email.id, e)}
-                      style={{ whiteSpace: 'nowrap' }}
-                    >
-                      Restore
-                    </div>
-                    <div
-                      className="small link"
-                      onClick={(e) => handleDeletePermanent(email.id, e)}
-                      style={{ whiteSpace: 'nowrap', color: 'var(--danger)' }}
-                    >
-                      Delete Forever
-                    </div>
-                  </div>
+          {loading ? (
+            <div className="small" style={{ padding: '20px', textAlign: 'center' }}>
+              Loading...
+            </div>
+          ) : (
+            <ul className="email-list">
+              {emails.length === 0 ? (
+                <li className="small" style={{ padding: '20px', textAlign: 'center' }}>
+                  Sampah kosong
                 </li>
-              ))
-            )}
-          </ul>
+              ) : (
+                emails.map((email) => (
+                  <li
+                    key={email.id}
+                    onClick={() => router.push(`/email/${email.id}?folder=trash`)}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontWeight: 600 }}>{email.from}</div>
+                      <div className="meta">
+                        {email.subject || '(no subject)'}
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <button onClick={(e) => handleRestore(e, email.id)} className="button" style={{ padding: '4px 8px', fontSize: '12px' }}>
+                        Restore
+                      </button>
+                      <button onClick={(e) => handleDelete(e, email.id)} className="button" style={{ padding: '4px 8px', fontSize: '12px', background: '#ef4444' }}>
+                        Delete
+                      </button>
+                    </div>
+                  </li>
+                ))
+              )}
+            </ul>
+          )}
         </div>
       </div>
     </div>

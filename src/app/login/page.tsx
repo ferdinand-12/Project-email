@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { findUserByEmail, loginUser, seedIfEmpty } from '@/lib/db';
+import { loginUser } from '@/lib/db';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -10,11 +10,7 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const router = useRouter();
 
-  useEffect(() => {
-    seedIfEmpty();
-  }, []);
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
@@ -23,14 +19,12 @@ export default function LoginPage() {
       return;
     }
 
-    const user = findUserByEmail(email);
-    if (!user || user.password !== password) {
-      setError('Login gagal: email atau kata sandi salah.');
-      return;
+    try {
+      await loginUser(email, password);
+      router.push('/inbox');
+    } catch (err: any) {
+      setError(err.message || 'Login gagal.');
     }
-
-    loginUser(email);
-    router.push('/inbox');
   };
 
   return (

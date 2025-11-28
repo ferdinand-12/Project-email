@@ -3,39 +3,43 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Sidebar from '@/components/Sidebar';
-import { currentUser, sendEmail, saveDraft } from '@/lib/db';
+import { getCurrentUser, sendEmail, saveDraft, getEmail } from '@/lib/db';
 
 export default function ComposePage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const draftId = searchParams.get('draft');
+  const draftId = searchParams.get('draftId') || searchParams.get('draft'); // Handle both query params
 
   const [to, setTo] = useState('');
   const [subject, setSubject] = useState('');
   const [body, setBody] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const user = currentUser();
+    checkAuthAndLoadDraft();
+  }, [draftId, router]);
+
+  const checkAuthAndLoadDraft = async () => {
+    const user = await getCurrentUser();
     if (!user) {
       router.push('/login');
       return;
     }
 
-    // Load draft if editing
     if (draftId) {
-      const draft = user.emails.drafts.find((d) => d.id === draftId);
+      const draft = await getEmail(draftId);
       if (draft) {
         setTo(draft.to.join(', '));
         setSubject(draft.subject);
         setBody(draft.body);
       }
     }
-  }, [draftId, router]);
+  };
 
-  const handleSend = () => {
+  const handleSend = async () => {
     setError('');
-    const user = currentUser();
+    const user = await getCurrentUser();
     if (!user) return;
 
     if (!to) {
@@ -49,16 +53,30 @@ export default function ComposePage() {
       return;
     }
 
-    sendEmail(user.email, tos, subject, body);
-    alert('Pesan berhasil dikirim!');
-    router.push('/sent');
+    setLoading(true);
+    try {
+      await sendEmail(user.email, tos, subject, body);
+      alert('Pesan berhasil dikirim!');
+      router.push('/sent');
+    } catch (err: any) {
+      setError(err.message || 'Gagal mengirim pesan.');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleSaveDraft = () => {
+  const handleSaveDraft = async () => {
     const tos = to ? to.split(',').map((s) => s.trim()) : [];
-    saveDraft(subject, body, tos);
-    alert('Draft tersimpan.');
-    router.push('/drafts');
+    setLoading(true);
+    try {
+      await saveDraft(subject, body, tos);
+      alert('Draft tersimpan.');
+      router.push('/drafts');
+    } catch (err: any) {
+      setError(err.message || 'Gagal menyimpan draft.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -78,6 +96,7 @@ export default function ComposePage() {
               value={to}
               onChange={(e) => setTo(e.target.value)}
               placeholder="recipient@example.com"
+              disabled={loading}
             />
           </div>
 
@@ -88,6 +107,7 @@ export default function ComposePage() {
               value={subject}
               onChange={(e) => setSubject(e.target.value)}
               placeholder="Email subject"
+              disabled={loading}
             />
           </div>
 
@@ -99,17 +119,18 @@ export default function ComposePage() {
               onChange={(e) => setBody(e.target.value)}
               placeholder="Write your message here..."
               style={{ resize: 'vertical' }}
+              disabled={loading}
             />
           </div>
 
           <div style={{ display: 'flex', gap: '8px', marginTop: '20px' }}>
-            <button className="button" onClick={handleSend}>
-              Send
+            <button className="button" onClick={handleSend} disabled={loading}>
+              {loading ? 'Sending...' : 'Send'}
             </button>
-            <button className="btn-ghost" onClick={handleSaveDraft}>
+            <button className="btn-ghost" onClick={handleSaveDraft} disabled={loading}>
               Save Draft
             </button>
-            <button className="btn-ghost" onClick={() => router.push('/inbox')}>
+            <button className="btn-ghost" onClick={() => router.push('/inbox')} disabled={loading}>
               Cancel
             </button>
           </div>

@@ -3,31 +3,40 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Sidebar from '@/components/Sidebar';
-import { currentUser, toggleStar } from '@/lib/db';
+import { getCurrentUser, getEmails, toggleStar } from '@/lib/db';
 import { Email } from '@/types';
 
 export default function StarredPage() {
   const router = useRouter();
   const [emails, setEmails] = useState<Email[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     loadEmails();
   }, [router]);
 
-  const loadEmails = () => {
-    const user = currentUser();
-    if (!user) {
-      router.push('/login');
-      return;
+  const loadEmails = async () => {
+    setLoading(true);
+    try {
+      const user = await getCurrentUser();
+      if (!user) {
+        router.push('/login');
+        return;
+      }
+      const data = await getEmails('starred');
+      setEmails(data);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
     }
-    setEmails(user.emails.starred);
   };
 
-  const handleUnstar = (emailId: string, e: React.MouseEvent) => {
+  const handleUnstar = async (e: React.MouseEvent, email: Email) => {
     e.stopPropagation();
-    toggleStar(emailId, 'starred');
-    // Reload emails after unstar
-    loadEmails();
+    // Optimistic update
+    setEmails(prev => prev.filter(em => em.id !== email.id));
+    await toggleStar(email.id, true); // true because it was starred
   };
 
   return (
@@ -36,36 +45,35 @@ export default function StarredPage() {
 
       <div style={{ flex: 1 }}>
         <div className="topbar">
-          <h2 style={{ margin: 0, color: '#fff' }}>Starred</h2>
+          <h2 style={{ margin: 0 }}>Starred</h2>
         </div>
 
         <div className="card">
-          <ul className="email-list">
-            {emails.length === 0 ? (
-              <li className="small" style={{ padding: '20px', textAlign: 'center', color: '#9aa3ad' }}>
-                Tidak ada email yang di-star
-              </li>
-            ) : (
-              emails.map((email) => (
-                <li
-                  key={email.id}
-                  onClick={() => router.push(`/email/${email.id}?folder=inbox`)}
-                  style={{ cursor: 'pointer' }}
-                >
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontWeight: 600, color: '#fff' }}>
-                      {email.subject || '(no subject)'}
-                    </div>
-                    <div className="meta" style={{ color: '#9aa3ad' }}>
-                      From: {email.from} — {email.body.slice(0, 60)}...
-                    </div>
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <div className="small" style={{ minWidth: '80px', color: '#9aa3ad' }}>
-                      {new Date(email.time).toLocaleDateString()}
+          {loading ? (
+            <div className="small" style={{ padding: '20px', textAlign: 'center' }}>
+              Loading...
+            </div>
+          ) : (
+            <ul className="email-list">
+              {emails.length === 0 ? (
+                <li className="small" style={{ padding: '20px', textAlign: 'center' }}>
+                  Tidak ada pesan berbintang
+                </li>
+              ) : (
+                emails.map((email) => (
+                  <li
+                    key={email.id}
+                    onClick={() => router.push(`/email/${email.id}?folder=inbox`)}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontWeight: 600 }}>{email.from}</div>
+                      <div className="meta">
+                        {email.subject || '(no subject)'} — {email.body.slice(0, 60)}...
+                      </div>
                     </div>
                     <button
-                      onClick={(e) => handleUnstar(email.id, e)}
+                      onClick={(e) => handleUnstar(e, email)}
                       style={{
                         background: 'transparent',
                         border: 'none',
@@ -78,11 +86,11 @@ export default function StarredPage() {
                     >
                       ★
                     </button>
-                  </div>
-                </li>
-              ))
-            )}
-          </ul>
+                  </li>
+                ))
+              )}
+            </ul>
+          )}
         </div>
       </div>
     </div>

@@ -3,25 +3,36 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { currentUser, logoutUser } from '@/lib/db';
+import { getCurrentUser, logoutUser, getEmails } from '@/lib/db';
 
 export default function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
+  const [inboxCount, setInboxCount] = useState(0);
+  const [draftCount, setDraftCount] = useState(0);
 
   useEffect(() => {
-    const u = currentUser();
+    loadData();
+  }, [router, pathname]); // Reload when path changes to update counts
+
+  const loadData = async () => {
+    const u = await getCurrentUser();
     if (!u) {
       router.push('/login');
     } else {
       setUser(u);
+      // Fetch counts
+      const inbox = await getEmails('inbox');
+      setInboxCount(inbox.length);
+      const drafts = await getEmails('drafts');
+      setDraftCount(drafts.length);
     }
-  }, [router]);
+  };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     if (confirm('Logout dari PingMe?')) {
-      logoutUser();
+      await logoutUser();
       router.push('/login');
     }
   };
@@ -43,7 +54,7 @@ export default function Sidebar() {
           className={pathname === '/inbox' ? 'active' : ''}
         >
           Inbox
-          <span className="badge">{user.emails.inbox.length}</span>
+          <span className="badge">{inboxCount}</span>
         </Link>
         <Link
           href="/starred"
@@ -56,7 +67,7 @@ export default function Sidebar() {
           className={pathname === '/drafts' ? 'active' : ''}
         >
           Drafts
-          <span className="badge">{user.emails.drafts.length}</span>
+          <span className="badge">{draftCount}</span>
         </Link>
         <Link href="/sent" className={pathname === '/sent' ? 'active' : ''}>
           Sent Items

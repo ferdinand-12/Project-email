@@ -3,59 +3,63 @@
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams, useParams } from 'next/navigation';
 import Sidebar from '@/components/Sidebar';
-import { currentUser, sendEmail } from '@/lib/db';
+import { getCurrentUser, sendEmail, getEmail } from '@/lib/db';
 import { Email } from '@/types';
 
 export default function ReplyPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const params = useParams(); // Use useParams hook
-  const emailId = params.id as string; // Get ID from params
+  const params = useParams();
+  const emailId = params.id as string;
   const folder = (searchParams.get('folder') as any) || 'inbox';
-  
+
   const [to, setTo] = useState('');
   const [subject, setSubject] = useState('');
   const [body, setBody] = useState('');
   const [error, setError] = useState('');
   const [originalEmail, setOriginalEmail] = useState<Email | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!emailId) return;
-    
-    const user = currentUser();
-    if (!user) {
-      router.push('/login');
-      return;
-    }
-
-    // Find email in all folders
-    let email: Email | null = null;
-    const allFolders: Array<keyof typeof user.emails> = ['inbox', 'sent', 'drafts', 'trash', 'starred'];
-    
-    for (const f of allFolders) {
-      email = user.emails[f].find(e => e.id === emailId) || null;
-      if (email) break;
-    }
-
-    if (!email) {
-      alert('Email tidak ditemukan');
-      router.push('/inbox');
-      return;
-    }
-
-    setOriginalEmail(email);
-    
-    // Pre-fill reply data
-    setTo(email.from);
-    setSubject('Re: ' + (email.subject || ''));
-    setBody(
-      `\n\n------- Original Message -------\nFrom: ${email.from}\nDate: ${new Date(email.time).toLocaleString()}\nSubject: ${email.subject || '(no subject)'}\n\n${email.body}`
-    );
+    loadOriginalEmail();
   }, [emailId, router]);
 
-  const handleSend = () => {
+  const loadOriginalEmail = async () => {
+    setLoading(true);
+    try {
+      const user = await getCurrentUser();
+      if (!user) {
+        router.push('/login');
+        return;
+      }
+
+      if (!emailId) return;
+
+      const email = await getEmail(emailId);
+      if (!email) {
+        alert('Email tidak ditemukan');
+        router.push('/inbox');
+        return;
+      }
+
+      setOriginalEmail(email);
+
+      // Pre-fill reply data
+      setTo(email.from);
+      setSubject('Re: ' + (email.subject || ''));
+      setBody(
+        `\n\n------- Original Message -------\nFrom: ${email.from}\nDate: ${new Date(email.time).toLocaleString()}\nSubject: ${email.subject || '(no subject)'}\n\n${email.body}`
+      );
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSend = async () => {
     setError('');
-    const user = currentUser();
+    const user = await getCurrentUser();
     if (!user) return;
 
     if (!body.trim()) {
@@ -63,14 +67,29 @@ export default function ReplyPage() {
       return;
     }
 
-    sendEmail(user.email, [to], subject, body);
-    alert('Balasan berhasil dikirim!');
-    router.push('/sent');
+    try {
+      await sendEmail(user.email, [to], subject, body);
+      alert('Balasan berhasil dikirim!');
+      router.push('/sent');
+    } catch (err: any) {
+      setError(err.message || 'Gagal mengirim balasan.');
+    }
   };
 
   const handleCancel = () => {
     router.push(`/email/${emailId}?folder=${folder}`);
   };
+
+  if (loading) {
+    return (
+      <div className="layout">
+        <Sidebar />
+        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <p>Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="layout">

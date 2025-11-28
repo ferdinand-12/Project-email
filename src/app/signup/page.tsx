@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { createUser, findUserByEmail, isValidEmail, isValidFullName, isValidPhone } from '@/lib/db';
+import { createUser, isValidEmail, isValidFullName, isValidPhone } from '@/lib/db';
 
 export default function SignupPage() {
   const [name, setName] = useState('');
@@ -13,7 +13,7 @@ export default function SignupPage() {
   const [error, setError] = useState('');
   const router = useRouter();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
@@ -47,14 +47,13 @@ export default function SignupPage() {
       return;
     }
 
-    if (findUserByEmail(email)) {
-      setError('Email sudah terdaftar.');
-      return;
+    try {
+      await createUser({ email, password, name, phone });
+      alert('Registrasi berhasil. Silakan login.');
+      router.push('/login');
+    } catch (err: any) {
+      setError(err.message || 'Registrasi gagal.');
     }
-
-    createUser({ email, password, name, phone });
-    alert('Registrasi berhasil. Silakan login.');
-    router.push('/login');
   };
 
   return (
