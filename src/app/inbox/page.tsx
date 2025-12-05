@@ -1,82 +1,45 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Sidebar from '@/components/Sidebar';
-import { getCurrentUser, sendEmail, saveDraft, getEmail } from '@/lib/db';
+import { getCurrentUser, getEmails, toggleStar } from '@/lib/db';
+import { Email } from '@/types';
 
-export default function ComposePage() {
+export default function InboxPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const draftId = searchParams.get('draftId') || searchParams.get('draft'); // Handle both query params
-
-  const [to, setTo] = useState('');
-  const [subject, setSubject] = useState('');
-  const [body, setBody] = useState('');
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [emails, setEmails] = useState<Email[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    checkAuthAndLoadDraft();
-  }, [draftId, router]);
+    loadEmails();
+  }, [router]);
 
-  const checkAuthAndLoadDraft = async () => {
-    const user = await getCurrentUser();
-    if (!user) {
-      router.push('/login');
-      return;
-    }
-
-    if (draftId) {
-      const draft = await getEmail(draftId);
-      if (draft) {
-        setTo(draft.to.join(', '));
-        setSubject(draft.subject);
-        setBody(draft.body);
+  const loadEmails = async () => {
+    setLoading(true);
+    try {
+      const user = await getCurrentUser();
+      if (!user) {
+        router.push('/login');
+        return;
       }
-    }
-  };
-
-  const handleSend = async () => {
-    setError('');
-    const user = await getCurrentUser();
-    if (!user) return;
-
-    if (!to) {
-      setError('Penerima wajib diisi.');
-      return;
-    }
-
-    const tos = to.split(',').map((s) => s.trim());
-    if (!body) {
-      setError('Isi email wajib diisi.');
-      return;
-    }
-
-    setLoading(true);
-    try {
-      await sendEmail(user.email, tos, subject, body);
-      alert('Pesan berhasil dikirim!');
-      router.push('/sent');
-    } catch (err: any) {
-      setError(err.message || 'Gagal mengirim pesan.');
+      const data = await getEmails('inbox');
+      setEmails(data);
+    } catch (error) {
+      console.error(error);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSaveDraft = async () => {
-    const tos = to ? to.split(',').map((s) => s.trim()) : [];
-    setLoading(true);
-    try {
-      await saveDraft(subject, body, tos);
-      alert('Draft tersimpan.');
-      router.push('/drafts');
-    } catch (err: any) {
-      setError(err.message || 'Gagal menyimpan draft.');
-    } finally {
-      setLoading(false);
-    }
+  const handleStar = async (email: Email, e: React.MouseEvent) => {
+    e.stopPropagation();
+    // Optimistic update
+    const newStatus = !email.starred;
+    setEmails(prev => prev.map(em => em.id === email.id ? { ...em, starred: newStatus } : em));
+
+    await toggleStar(email.id, email.starred);
+    // No need to reload all emails, optimistic update is enough
   };
 
   return (
@@ -85,57 +48,59 @@ export default function ComposePage() {
 
       <div style={{ flex: 1 }}>
         <div className="topbar">
-          <h2 style={{ margin: 0 }}>Compose Email</h2>
+          <h2 style={{ margin: 0, color: '#fff' }}>Inbox</h2>
         </div>
 
         <div className="card">
-          <div className="form-group">
-            <label className="small">To (comma separated)</label>
-            <input
-              type="text"
-              value={to}
-              onChange={(e) => setTo(e.target.value)}
-              placeholder="recipient@example.com"
-              disabled={loading}
-            />
-          </div>
-
-          <div className="form-group">
-            <label className="small">Subject</label>
-            <input
-              type="text"
-              value={subject}
-              onChange={(e) => setSubject(e.target.value)}
-              placeholder="Email subject"
-              disabled={loading}
-            />
-          </div>
-
-          <div className="form-group">
-            <label className="small">Body</label>
-            <textarea
-              rows={12}
-              value={body}
-              onChange={(e) => setBody(e.target.value)}
-              placeholder="Write your message here..."
-              style={{ resize: 'vertical' }}
-              disabled={loading}
-            />
-          </div>
-
-          <div style={{ display: 'flex', gap: '8px', marginTop: '20px' }}>
-            <button className="button" onClick={handleSend} disabled={loading}>
-              {loading ? 'Sending...' : 'Send'}
-            </button>
-            <button className="btn-ghost" onClick={handleSaveDraft} disabled={loading}>
-              Save Draft
-            </button>
-            <button className="btn-ghost" onClick={() => router.push('/inbox')} disabled={loading}>
-              Cancel
-            </button>
-          </div>
-
-          {error && <p className="error" style={{ display: 'block' }}>{error}</p>}
+          {loading ? (
+            <div className="small" style={{ padding: '20px', textAlign: 'center', color: '#9aa3ad' }}>
+              Loading...
+            </div>
+          ) : (
+            <ul className="email-list">
+              {emails.length === 0 ? (
+                <li className="small" style={{ padding: '20px', textAlign: 'center', color: '#9aa3ad' }}>
+                  Inbox kosong
+                </li>
+              ) : (
+                emails.map((email) => (
+                  <li
+                    key={email.id}
+                    onClick={() => router.push(`/email/${email.id}?folder=inbox`)}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontWeight: 600, color: '#fff' }}>
+                        {email.from}
+                      </div>
+                      <div className="meta" style={{ color: '#9aa3ad' }}>
+                        <span style={{ color: '#e6eef6' }}>{email.subject || '(no subject)'}</span> — {email.body.slice(0, 60)}...
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <div className="small" style={{ minWidth: '80px', color: '#9aa3ad' }}>
+                        {new Date(email.time).toLocaleDateString()}
+                      </div>
+                      <button
+                        onClick={(e) => handleStar(email, e)}
+                        style={{
+                          background: 'transparent',
+                          border: 'none',
+                          cursor: 'pointer',
+                          fontSize: '18px',
+                          color: email.starred ? '#fbbf24' : '#4b5563',
+                          padding: '4px 8px'
+                        }}
+                        title={email.starred ? "Unstar" : "Star"}
+                      >
+                        {email.starred ? '★' : '☆'}
+                      </button>
+                    </div>
+                  </li>
+                ))
+              )}
+            </ul>
+          )}
         </div>
       </div>
     </div>
